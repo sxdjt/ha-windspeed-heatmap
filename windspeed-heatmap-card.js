@@ -1,4 +1,4 @@
-/* Last modified: 19-Dec-2025 23:21 */
+/* Last modified: 19-Dec-2025 23:25 */
 
 // Register with Home Assistant custom cards
 window.customCards = window.customCards || [];
@@ -85,6 +85,7 @@ class WindspeedHeatmapCard extends HTMLElement {
       title: config.title || 'Wind Speed History',
       days: config.days || 7,
       time_interval: config.time_interval || 2,
+      time_format: config.time_format || '24',  // '12' or '24'
 
       // Units
       unit: config.unit || null,
@@ -815,8 +816,12 @@ class WindspeedHeatmapCard extends HTMLElement {
     return Math.round(avgDeg);
   }
 
-  // Format hour as "12a", "3p", etc.
+  // Format hour as "12a", "3p", etc. (12-hour) or "0", "15", etc. (24-hour)
   _formatHourLabel(hour) {
+    if (this._config.time_format === '24') {
+      return `${hour}`;
+    }
+    // 12-hour format
     const h = hour === 0 ? 12 : (hour > 12 ? hour - 12 : hour);
     const suffix = hour < 12 ? 'a' : 'p';
     return `${h}${suffix}`;
