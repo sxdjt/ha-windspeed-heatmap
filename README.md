@@ -37,6 +37,7 @@ direction_entity: sensor.wind_direction
 title: "Patio Wind History"
 days: 7
 time_interval: 2
+time_format: "24"
 unit: mph
 show_direction: true
 direction_format: arrow
@@ -67,6 +68,7 @@ color_thresholds:
 | `title` | string | `"Wind Speed History"` | Card title |
 | `days` | number | `7` | Number of days to display (1-30) |
 | `time_interval` | number | `2` | Hours per row: 1, 2, 3, 4, 6, 8, 12, or 24 |
+| `time_format` | string | `"24"` | Time format: "12" or "24" |
 | `unit` | string | auto-detect | Unit of measurement (e.g., "mph", "km/h", "m/s") |
 | `show_direction` | boolean | `true` | Show wind direction in cells |
 | `direction_format` | string | `"arrow"` | Direction format: "arrow", "cardinal", or "degrees" |
