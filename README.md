@@ -17,7 +17,7 @@ A custom Home Assistant Lovelace card that displays wind speed data as a color-c
 
 ## Installation
 
-Add  `https://github.com/sxdjt/ha-windspeed-heatmap` to your custom HACS repository list
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=sxdjt&repository=ha-windspeed-heatmap)
 
 ## Configuration
 
