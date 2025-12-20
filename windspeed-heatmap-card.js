@@ -1,4 +1,4 @@
-/* Last modified: 19-Dec-2025 23:25 */
+/* Last modified: 19-Dec-2025 23:27 */
 
 // Register with Home Assistant custom cards
 window.customCards = window.customCards || [];
@@ -816,10 +816,10 @@ class WindspeedHeatmapCard extends HTMLElement {
     return Math.round(avgDeg);
   }
 
-  // Format hour as "12a", "3p", etc. (12-hour) or "0", "15", etc. (24-hour)
+  // Format hour as "12a", "3p", etc. (12-hour) or "00", "15", etc. (24-hour)
   _formatHourLabel(hour) {
     if (this._config.time_format === '24') {
-      return `${hour}`;
+      return String(hour).padStart(2, '0');
     }
     // 12-hour format
     const h = hour === 0 ? 12 : (hour > 12 ? hour - 12 : hour);
