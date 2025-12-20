@@ -5,11 +5,8 @@ A custom Home Assistant Lovelace card that displays wind speed data as a color-c
 ## Features
 
 - Color-coded heatmap visualization of wind speed history
-- Configurable time periods (1-30 days)
-- Configurable time intervals (1, 2, 3, 4, 6, 8, 12, or 24 hours per row)
+- Configurable time periods and intervals
 - Optional wind direction display (arrows, cardinal directions, or degrees)
-- Navigation controls to browse historical data
-- Interactive cells with tooltips or more-info dialog
 - Customizable color thresholds based on wind speed
 - Min/Max/Avg statistics
 - Responsive design with dark theme support
@@ -17,30 +14,7 @@ A custom Home Assistant Lovelace card that displays wind speed data as a color-c
 
 ## Installation
 
-### HACS (Recommended)
-
-1. Open HACS in Home Assistant
-2. Go to "Frontend" section
-3. Click the menu (three dots) in the top right
-4. Select "Custom repositories"
-5. Add this repository URL: `https://github.com/YOUR-USERNAME/ha-windspeed-heatmap`
-6. Category: "Lovelace"
-7. Click "Add"
-8. Find "Windspeed Heatmap Card" in HACS and install it
-9. Restart Home Assistant
-
-### Manual Installation
-
-1. Download `windspeed-heatmap-card.js` from the latest release
-2. Copy it to your `config/www` directory (create if it doesn't exist)
-3. Add the resource to your Lovelace dashboard:
-   - Go to Settings → Dashboards → Resources (three-dot menu)
-   - Click "Add Resource"
-   - URL: `/local/windspeed-heatmap-card.js`
-   - Resource type: "JavaScript Module"
-4. Click "Create"
-5. Restart Home Assistant
-6. Refresh your browser cache (Ctrl+Shift+R / Cmd+Shift+R)
+Add  `https://github.com/sxdjt/ha-windspeed-heatmap` to your custom HACS repository list
 
 ## Configuration
 
@@ -120,66 +94,6 @@ color_thresholds:
 
 You can customize these thresholds to match your local wind conditions and preferred color scheme.
 
-## Examples
-
-### Compact 24-Hour View
-
-Shows the last 24 hours with 1-hour intervals:
-
-```yaml
-type: custom:windspeed-heatmap-card
-entity: sensor.wind_speed
-direction_entity: sensor.wind_direction
-days: 1
-time_interval: 1
-title: "Last 24 Hours"
-```
-
-### Weekly Overview
-
-Shows 7 days with 3-hour intervals:
-
-```yaml
-type: custom:windspeed-heatmap-card
-entity: sensor.wind_speed
-days: 7
-time_interval: 3
-title: "Weekly Wind Pattern"
-```
-
-### Two-Week Comparison
-
-Shows 14 days with 6-hour intervals:
-
-```yaml
-type: custom:windspeed-heatmap-card
-entity: sensor.wind_speed
-days: 14
-time_interval: 6
-title: "Two-Week History"
-show_direction: false
-```
-
-### Custom Color Scale (Metric)
-
-For metric users (km/h):
-
-```yaml
-type: custom:windspeed-heatmap-card
-entity: sensor.wind_speed
-unit: km/h
-color_thresholds:
-  - value: 0
-    color: "#e3f2fd"
-  - value: 10
-    color: "#90caf9"
-  - value: 20
-    color: "#ffeb3b"
-  - value: 30
-    color: "#ff9800"
-  - value: 40
-    color: "#f44336"
-```
 
 ## Wind Direction Formats
 
@@ -207,79 +121,9 @@ Displays numeric degrees: 0°, 45°, 90°, etc.
 direction_format: degrees
 ```
 
-## Click Actions
-
-### Tooltip (default)
-
-Shows a floating tooltip with detailed information when clicking a cell:
-
-```yaml
-click_action: tooltip
-```
-
-### More Info
-
-Opens the Home Assistant more-info dialog for the wind speed entity:
-
-```yaml
-click_action: more-info
-```
-
-### None
-
-Disables cell click interactions:
-
-```yaml
-click_action: none
-```
-
-## Tips and Best Practices
-
-1. **Choose appropriate time intervals**: For short periods (1-3 days), use 1-2 hour intervals. For longer periods (7-14 days), use 3-6 hour intervals to keep the grid readable.
-
-2. **Wind direction entity**: If your weather integration provides a wind direction sensor, include it for better wind pattern analysis.
-
-3. **Custom thresholds**: Adjust color thresholds based on your local climate. Coastal areas may want different scales than inland regions.
-
-4. **Refresh interval**: Balance between data freshness and API load. For current-day monitoring, 5 minutes (300s) is reasonable. For historical analysis, 15-30 minutes is sufficient.
-
-5. **Mobile viewing**: On smaller screens, wind direction arrows are hidden automatically to maintain readability.
-
-## Troubleshooting
-
-### Card not appearing
-
-- Check browser console (F12) for errors
-- Verify the resource is loaded: Settings → Dashboards → Resources
-- Ensure entity ID is correct and exists
-- Hard refresh browser (Ctrl+Shift+R / Cmd+Shift+R)
-
-### No data showing
-
-- Verify your wind speed sensor has historical data
-- Check entity ID in Developer Tools → States
-- Ensure entity records regular updates (check history in HA)
-- Check browser console for API errors
-
-### Colors not showing correctly
-
-- Verify your thresholds are in ascending order by value
-- Use valid hex color codes (e.g., #ffffff)
-- Check color contrast for readability
-
-### Navigation buttons not working
-
-- Ensure you have sufficient historical data
-- Check browser console for fetch errors
-- Verify Home Assistant history database is configured
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Credits
-
-Created for the Home Assistant community.
 
 ## Support
 

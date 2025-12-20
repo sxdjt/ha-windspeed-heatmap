@@ -1,4 +1,4 @@
-/* Last modified: 19-Dec-2025 02:07 */
+/* Last modified: 19-Dec-2025 23:11 */
 
 // Register with Home Assistant custom cards
 window.customCards = window.customCards || [];
@@ -233,6 +233,11 @@ class WindspeedHeatmapCard extends HTMLElement {
       .nav-btn-current:focus {
         outline: 2px solid var(--primary-color);
         outline-offset: 2px;
+      }
+
+      .nav-btn-current.hidden {
+        visibility: hidden;
+        pointer-events: none;
       }
 
       .date-range {
@@ -852,7 +857,10 @@ class WindspeedHeatmapCard extends HTMLElement {
         <button class="nav-btn" data-direction="forward"
                 ${canGoForward ? '' : 'disabled'}
                 aria-label="Next period">→</button>
-        ${showCurrentButton ? '<button class="nav-btn-current" data-direction="current" aria-label="Jump to current">Current</button>' : ''}
+        <button class="nav-btn-current ${showCurrentButton ? '' : 'hidden'}"
+                data-direction="current"
+                aria-label="Jump to current"
+                ${showCurrentButton ? '' : 'aria-hidden="true"'}>Current</button>
       </div>
     `;
   }
