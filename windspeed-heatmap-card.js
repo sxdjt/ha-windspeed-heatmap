@@ -1,4 +1,4 @@
-/* Last modified: 19-Dec-2025 23:31 */
+/* Last modified: 27-Dec-2025 18:06 */
 
 // Register with Home Assistant custom cards
 window.customCards = window.customCards || [];
@@ -9,7 +9,7 @@ window.customCards.push({
 });
 
 console.info(
-  '%c WINDSPEED-HEATMAP-CARD %c v0.1.1 ',
+  '%c WINDSPEED-HEATMAP-CARD %c v0.1.2 ',
   'color: lightblue; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray'
 );
@@ -101,7 +101,7 @@ class WindspeedHeatmapCard extends HTMLElement {
       refresh_interval: config.refresh_interval || 300,  // Seconds (5 min default)
 
       // Interaction
-      click_action: config.click_action || 'tooltip',  // 'none', 'more-info', 'tooltip'
+      click_action: config.click_action || 'more-info',  // 'none', 'more-info', 'tooltip'
 
       // Display options
       show_entity_name: config.show_entity_name || false
@@ -1174,9 +1174,7 @@ class WindspeedHeatmapCard extends HTMLElement {
 
     const dateStr = date.toLocaleString(undefined, {
       month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
+      day: 'numeric'
     });
 
     const unit = this._getUnit();
