@@ -1,4 +1,4 @@
-/* Last modified: 27-Dec-2025 18:06 */
+/* Last modified: 04-Jan-2026 14:30 */
 
 // Register with Home Assistant custom cards
 window.customCards = window.customCards || [];
@@ -1064,7 +1064,9 @@ class WindspeedHeatmapCard extends HTMLElement {
   // Convert degrees to arrow character
   _degreesToArrow(degrees) {
     const arrows = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖'];
-    const index = Math.round(degrees / 45) % 8;
+    // Add 180 degrees to point arrow where wind is blowing TO (not FROM)
+    const adjustedDegrees = (degrees + 180) % 360;
+    const index = Math.round(adjustedDegrees / 45) % 8;
     return arrows[index];
   }
 
