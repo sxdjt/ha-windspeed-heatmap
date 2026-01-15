@@ -83,7 +83,7 @@ rounded_corners: true
 
 ### Default Color Thresholds
 
-The default color scale uses the official [Beaufort wind scale colors](beaufort_scale.html).
+The default color scale uses the official [Beaufort wind scale colors](beaufort_colors.html).
 
 You can customize these thresholds to match your local wind conditions and preferred color scheme.
 
