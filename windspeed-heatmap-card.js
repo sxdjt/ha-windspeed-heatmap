@@ -1,4 +1,4 @@
-/* Last modified: 13-Jan-2026 01:40 */
+/* Last modified: 14-Jan-2026 09:47 */
 
 // Register with Home Assistant custom cards
 window.customCards = window.customCards || [];
@@ -9,7 +9,7 @@ window.customCards.push({
 });
 
 console.info(
-  '%c WINDSPEED-HEATMAP-CARD %c v0.1.2 ',
+  '%c WINDSPEED-HEATMAP-CARD %c v0.2.1 ',
   'color: lightblue; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray'
 );
@@ -148,7 +148,10 @@ class WindspeedHeatmapCard extends HTMLElement {
       cell_padding: config.cell_padding !== undefined ? config.cell_padding : 2,
       cell_gap: config.cell_gap !== undefined ? config.cell_gap : 2,
       cell_font_size: config.cell_font_size !== undefined ? config.cell_font_size : 11,
-      compact: config.compact || false
+      compact: config.compact || false,
+
+      // Visual options
+      rounded_corners: config.rounded_corners !== false  // Default true
     };
 
     // Sort thresholds by value (ascending) - create mutable copy to avoid "read-only" errors
@@ -372,7 +375,7 @@ class WindspeedHeatmapCard extends HTMLElement {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        border-radius: 4px;
+        border-radius: var(--cell-border-radius, 4px);
         cursor: pointer;
         transition: transform 0.1s ease, box-shadow 0.1s ease;
         position: relative;
@@ -900,6 +903,7 @@ class WindspeedHeatmapCard extends HTMLElement {
       this._content.style.setProperty('--cell-padding', sizing.cellPadding);
       this._content.style.setProperty('--cell-gap', sizing.cellGap);
       this._content.style.setProperty('--cell-font-size', sizing.cellFontSize);
+      this._content.style.setProperty('--cell-border-radius', this._config.rounded_corners ? '4px' : '0');
     }
   }
 

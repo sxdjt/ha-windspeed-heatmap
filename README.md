@@ -49,6 +49,7 @@ direction_format: arrow
 show_entity_name: true
 refresh_interval: 300
 click_action: tooltip
+rounded_corners: true
 color_thresholds:
   - value: 0
     color: "#e8f5e9"
@@ -79,6 +80,7 @@ color_thresholds:
 | `compact` | boolean | `false` | Enable compact mode (overrides cell sizing properties) |
 | `days` | number | `7` | Number of days to display (1-30) |
 | `direction_entity` | string | `null` | Wind direction sensor entity ID (optional) |
+| `rounded_corners` | boolean | `true` | Enable rounded corners on cells (set to false for flat grid) |
 | `direction_format` | string | `"arrow"` | Direction format: "arrow", "cardinal", or "degrees" |
 | `refresh_interval` | number | `300` | Data refresh interval in seconds |
 | `show_direction` | boolean | `true` | Show wind direction in cells |
