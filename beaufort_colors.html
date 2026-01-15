@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beaufort Scale Colors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        .scale-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .color-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 100px 110px 90px 220px;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .force-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        .color-bar {
+            height: 40px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .speed-range {
+            font-size: 0.8rem;
+            color: #888;
+            text-align: right;
+        }
+        .rgba-value {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        .description {
+            font-size: 0.75rem;
+            color: #555;
+            grid-column: 2;
+            margin-top: -0.3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Gradient preview */
+        .gradient-section {
+            margin-top: 3rem;
+            text-align: center;
+        }
+        .gradient-section h2 {
+            font-weight: 400;
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+        .gradient-bar {
+            height: 60px;
+            border-radius: 8px;
+            background: linear-gradient(to right,
+                rgba(187, 222, 251, 1) 0%,
+                rgba(144, 202, 249, 1) 4%,
+                rgba(100, 181, 246, 1) 10%,
+                rgba(66, 165, 245, 1) 16%,
+                rgba(30, 136, 229, 1) 22%,
+                rgba(192, 202, 81, 1) 30%,
+                rgba(225, 213, 60, 1) 38%,
+                rgba(255, 213, 79, 1) 48%,
+                rgba(255, 183, 77, 1) 56%,
+                rgba(239, 108, 0, 1) 66%,
+                rgba(244, 81, 30, 1) 76%,
+                rgba(229, 57, 53, 1) 88%,
+                rgba(183, 28, 28, 1) 100%
+            );
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .gradient-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Beaufort Scale Colors</h1>
+    <p class="subtitle">Wind speed thresholds</p>
+    
+    <div class="scale-container">
+        <!-- Force 0 -->
+        <div class="color-row">
+            <span class="force-label">Force 0</span>
+            <div class="color-bar" style="background: rgba(187, 222, 251, 1);"></div>
+            <span class="speed-range">&lt; 1 mph</span>
+            <span class="speed-range">&lt; 2 km/h</span>
+            <span class="speed-range">&lt; 0.5 m/s</span>
+            <span class="rgba-value">rgba(187, 222, 251, 1)</span>
+        </div>
+        <p class="description">Calm</p>
+        
+        <!-- Force 1 -->
+        <div class="color-row">
+            <span class="force-label">Force 1</span>
+            <div class="color-bar" style="background: rgba(144, 202, 249, 1);"></div>
+            <span class="speed-range">1–3 mph</span>
+            <span class="speed-range">2–5 km/h</span>
+            <span class="speed-range">0.5–1.5 m/s</span>
+            <span class="rgba-value">rgba(144, 202, 249, 1)</span>
+        </div>
+        <p class="description">Light Air</p>
+        
+        <!-- Force 2 -->
+        <div class="color-row">
+            <span class="force-label">Force 2</span>
+            <div class="color-bar" style="background: rgba(100, 181, 246, 1);"></div>
+            <span class="speed-range">4–7 mph</span>
+            <span class="speed-range">6–11 km/h</span>
+            <span class="speed-range">1.6–3.3 m/s</span>
+            <span class="rgba-value">rgba(100, 181, 246, 1)</span>
+        </div>
+        <p class="description">Light Breeze</p>
+        
+        <!-- Force 3 -->
+        <div class="color-row">
+            <span class="force-label">Force 3</span>
+            <div class="color-bar" style="background: rgba(66, 165, 245, 1);"></div>
+            <span class="speed-range">8–12 mph</span>
+            <span class="speed-range">12–19 km/h</span>
+            <span class="speed-range">3.4–5.5 m/s</span>
+            <span class="rgba-value">rgba(66, 165, 245, 1)</span>
+        </div>
+        <p class="description">Gentle Breeze</p>
+        
+        <!-- Force 4 -->
+        <div class="color-row">
+            <span class="force-label">Force 4</span>
+            <div class="color-bar" style="background: rgba(30, 136, 229, 1);"></div>
+            <span class="speed-range">13–18 mph</span>
+            <span class="speed-range">20–28 km/h</span>
+            <span class="speed-range">5.5–7.9 m/s</span>
+            <span class="rgba-value">rgba(30, 136, 229, 1)</span>
+        </div>
+        <p class="description">Moderate Breeze</p>
+        
+        <!-- Force 5 -->
+        <div class="color-row">
+            <span class="force-label">Force 5</span>
+            <div class="color-bar" style="background: rgba(192, 202, 81, 1);"></div>
+            <span class="speed-range">19–24 mph</span>
+            <span class="speed-range">29–38 km/h</span>
+            <span class="speed-range">8.0–10.7 m/s</span>
+            <span class="rgba-value">rgba(192, 202, 81, 1)</span>
+        </div>
+        <p class="description">Fresh Breeze</p>
+        
+        <!-- Force 6 -->
+        <div class="color-row">
+            <span class="force-label">Force 6</span>
+            <div class="color-bar" style="background: rgba(225, 213, 60, 1);"></div>
+            <span class="speed-range">25–31 mph</span>
+            <span class="speed-range">39–49 km/h</span>
+            <span class="speed-range">10.8–13.8 m/s</span>
+            <span class="rgba-value">rgba(225, 213, 60, 1)</span>
+        </div>
+        <p class="description">Strong Breeze</p>
+        
+        <!-- Force 7 -->
+        <div class="color-row">
+            <span class="force-label">Force 7</span>
+            <div class="color-bar" style="background: rgba(255, 213, 79, 1);"></div>
+            <span class="speed-range">32–38 mph</span>
+            <span class="speed-range">50–61 km/h</span>
+            <span class="speed-range">13.9–17.1 m/s</span>
+            <span class="rgba-value">rgba(255, 213, 79, 1)</span>
+        </div>
+        <p class="description">Near Gale</p>
+        
+        <!-- Force 8 -->
+        <div class="color-row">
+            <span class="force-label">Force 8</span>
+            <div class="color-bar" style="background: rgba(255, 183, 77, 1);"></div>
+            <span class="speed-range">39–46 mph</span>
+            <span class="speed-range">62–74 km/h</span>
+            <span class="speed-range">17.2–20.7 m/s</span>
+            <span class="rgba-value">rgba(255, 183, 77, 1)</span>
+        </div>
+        <p class="description">Gale</p>
+        
+        <!-- Force 9 -->
+        <div class="color-row">
+            <span class="force-label">Force 9</span>
+            <div class="color-bar" style="background: rgba(239, 108, 0, 1);"></div>
+            <span class="speed-range">47–54 mph</span>
+            <span class="speed-range">75–88 km/h</span>
+            <span class="speed-range">20.8–24.4 m/s</span>
+            <span class="rgba-value">rgba(239, 108, 0, 1)</span>
+        </div>
+        <p class="description">Strong Gale</p>
+        
+        <!-- Force 10 -->
+        <div class="color-row">
+            <span class="force-label">Force 10</span>
+            <div class="color-bar" style="background: rgba(244, 81, 30, 1);"></div>
+            <span class="speed-range">55–63 mph</span>
+            <span class="speed-range">89–102 km/h</span>
+            <span class="speed-range">24.5–28.4 m/s</span>
+            <span class="rgba-value">rgba(244, 81, 30, 1)</span>
+        </div>
+        <p class="description">Storm</p>
+        
+        <!-- Force 11 -->
+        <div class="color-row">
+            <span class="force-label">Force 11</span>
+            <div class="color-bar" style="background: rgba(229, 57, 53, 1);"></div>
+            <span class="speed-range">64–72 mph</span>
+            <span class="speed-range">103–117 km/h</span>
+            <span class="speed-range">28.5–32.6 m/s</span>
+            <span class="rgba-value">rgba(229, 57, 53, 1)</span>
+        </div>
+        <p class="description">Violent Storm</p>
+        
+        <!-- Force 12 -->
+        <div class="color-row">
+            <span class="force-label">Force 12</span>
+            <div class="color-bar" style="background: rgba(183, 28, 28, 1);"></div>
+            <span class="speed-range">≥ 73 mph</span>
+            <span class="speed-range">≥ 118 km/h</span>
+            <span class="speed-range">≥ 32.7 m/s</span>
+            <span class="rgba-value">rgba(183, 28, 28, 1)</span>
+        </div>
+        <p class="description">Hurricane Force</p>
+    </div>
+    
+    <div class="gradient-section">
+        <h2>Continuous Gradient Preview</h2>
+        <div class="gradient-bar"></div>
+        <div class="gradient-labels">
+            <span>Calm</span>
+            <span>Hurricane</span>
+        </div>
+    </div>
+</body>
+</html>

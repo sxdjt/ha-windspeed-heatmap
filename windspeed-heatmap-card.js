@@ -1,27 +1,34 @@
-/* Last modified: 14-Jan-2026 09:47 */
+/* Last modified: 15-Jan-2026 14:42 */
 
 // Register with Home Assistant custom cards
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: 'windspeed-heatmap-card',
   name: 'Windspeed Heatmap Card',
-  description: 'Display wind speed history as a color-coded heatmap'
+  description: 'Display wind speed history as a color-coded heatmap using Beaufort scale colors'
 });
 
 console.info(
-  '%c WINDSPEED-HEATMAP-CARD %c v0.2.1 ',
+  '%c WINDSPEED-HEATMAP-CARD %c v0.3.0 ',
   'color: lightblue; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray'
 );
 
 // Default color thresholds based on Beaufort scale (MPH)
 const DEFAULT_THRESHOLDS = [
-  { value: 0,  color: '#e8f5e9' },  // 0-5 mph: Light green (calm)
-  { value: 5,  color: '#81c784' },  // 5-10 mph: Green (light breeze)
-  { value: 10, color: '#fff59d' },  // 10-15 mph: Yellow (moderate breeze)
-  { value: 15, color: '#ffb74d' },  // 15-20 mph: Orange (fresh breeze)
-  { value: 20, color: '#e57373' },  // 20-30 mph: Light red (strong breeze)
-  { value: 30, color: '#d32f2f' }   // 30+ mph: Dark red (gale force)
+  { value: 0,  color: 'rgba(187, 222, 251, 1)' },  // Force 0: Calm (< 1 mph)
+  { value: 1,  color: 'rgba(144, 202, 249, 1)' },  // Force 1: Light Air (1-3 mph)
+  { value: 4,  color: 'rgba(100, 181, 246, 1)' },  // Force 2: Light Breeze (4-7 mph)
+  { value: 8,  color: 'rgba(66, 165, 245, 1)' },   // Force 3: Gentle Breeze (8-12 mph)
+  { value: 13, color: 'rgba(30, 136, 229, 1)' },   // Force 4: Moderate Breeze (13-18 mph)
+  { value: 19, color: 'rgba(192, 202, 81, 1)' },   // Force 5: Fresh Breeze (19-24 mph)
+  { value: 25, color: 'rgba(225, 213, 60, 1)' },   // Force 6: Strong Breeze (25-31 mph)
+  { value: 32, color: 'rgba(255, 213, 79, 1)' },   // Force 7: Near Gale (32-38 mph)
+  { value: 39, color: 'rgba(255, 183, 77, 1)' },   // Force 8: Gale (39-46 mph)
+  { value: 47, color: 'rgba(239, 108, 0, 1)' },    // Force 9: Strong Gale (47-54 mph)
+  { value: 55, color: 'rgba(244, 81, 30, 1)' },    // Force 10: Storm (55-63 mph)
+  { value: 64, color: 'rgba(229, 57, 53, 1)' },    // Force 11: Violent Storm (64-72 mph)
+  { value: 73, color: 'rgba(183, 28, 28, 1)' }     // Force 12: Hurricane Force (>= 73 mph)
 ];
 
 class WindspeedHeatmapCard extends HTMLElement {
@@ -151,7 +158,8 @@ class WindspeedHeatmapCard extends HTMLElement {
       compact: config.compact || false,
 
       // Visual options
-      rounded_corners: config.rounded_corners !== false  // Default true
+      rounded_corners: config.rounded_corners !== false,  // Default true
+      show_legend: config.show_legend || false  // Default false
     };
 
     // Sort thresholds by value (ascending) - create mutable copy to avoid "read-only" errors
@@ -516,6 +524,39 @@ class WindspeedHeatmapCard extends HTMLElement {
 
       .tooltip strong {
         color: var(--primary-text-color);
+      }
+
+      /* Legend bar */
+      .legend {
+        padding: 8px 16px 12px;
+        border-top: 1px solid var(--divider-color);
+      }
+
+      .legend-bar {
+        height: 12px;
+        border-radius: 3px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+      }
+
+      .legend-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4px;
+        font-size: 9px;
+        color: var(--secondary-text-color);
+      }
+
+      .legend-labels span {
+        flex: 1;
+        text-align: center;
+      }
+
+      .legend-labels span:first-child {
+        text-align: left;
+      }
+
+      .legend-labels span:last-child {
+        text-align: right;
       }
 
       /* Responsive adjustments */
@@ -891,6 +932,7 @@ class WindspeedHeatmapCard extends HTMLElement {
       ${this._isLoading ? this._renderLoading() : ''}
       ${this._processedData && !this._error ? this._renderGrid() : ''}
       ${this._processedData && !this._error ? this._renderFooter() : ''}
+      ${this._processedData && !this._error && this._config.show_legend ? this._renderLegend() : ''}
     `;
 
     // Set CSS variables for grid layout and cell sizing
@@ -957,7 +999,7 @@ class WindspeedHeatmapCard extends HTMLElement {
   _renderError() {
     return `
       <div class="error-message">
-        <div class="error-icon">⚠</div>
+        <div class="error-icon">!</div>
         <div class="error-text">
           <strong>${this._escapeHtml(this._error.message)}</strong>
           <div class="error-details">${this._escapeHtml(this._error.details)}</div>
@@ -1063,6 +1105,45 @@ class WindspeedHeatmapCard extends HTMLElement {
     `;
   }
 
+  // Render legend bar with gradient
+  _renderLegend() {
+    const thresholds = this._config.color_thresholds;
+    const unit = this._getUnit();
+
+    // Build gradient stops from thresholds
+    // Calculate percentage positions based on value range
+    const maxValue = thresholds[thresholds.length - 1].value;
+    const gradientStops = thresholds.map((t, i) => {
+      // Use logarithmic-ish scaling for better visual distribution
+      // since wind speeds cluster at lower values
+      const percent = Math.min((t.value / Math.max(maxValue, 75)) * 100, 100);
+      return `${t.color} ${percent.toFixed(0)}%`;
+    }).join(', ');
+
+    // Select a few key labels to show (don't crowd it)
+    // Show: 0, ~mid-low, ~mid, ~mid-high, max
+    const labelIndices = [0, 3, 6, 9, thresholds.length - 1];
+    const labels = labelIndices
+      .filter(i => i < thresholds.length)
+      .map(i => thresholds[i].value)
+      .filter((v, i, arr) => arr.indexOf(v) === i);  // Remove duplicates
+
+    // Format last label with + sign
+    const labelHtml = labels.map((v, i) => {
+      const isLast = i === labels.length - 1;
+      return `<span>${v}${isLast ? '+' : ''}</span>`;
+    }).join('');
+
+    return `
+      <div class="legend">
+        <div class="legend-bar" style="background: linear-gradient(to right, ${gradientStops});"></div>
+        <div class="legend-labels">
+          ${labelHtml}
+        </div>
+      </div>
+    `;
+  }
+
   // Get color for wind speed value based on thresholds
   _getColorForSpeed(speed) {
     if (speed === null || speed === undefined) {
@@ -1091,16 +1172,46 @@ class WindspeedHeatmapCard extends HTMLElement {
       return 'var(--primary-text-color)';
     }
 
+    // Handle rgba() format
+    if (backgroundColor.startsWith('rgba(')) {
+      const match = backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (match) {
+        const r = parseInt(match[1], 10);
+        const g = parseInt(match[2], 10);
+        const b = parseInt(match[3], 10);
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance > 0.5 ? '#000000' : '#ffffff';
+      }
+    }
+
+    // Handle rgb() format
+    if (backgroundColor.startsWith('rgb(')) {
+      const match = backgroundColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (match) {
+        const r = parseInt(match[1], 10);
+        const g = parseInt(match[2], 10);
+        const b = parseInt(match[3], 10);
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance > 0.5 ? '#000000' : '#ffffff';
+      }
+    }
+
+    // Handle hex format
     const hex = backgroundColor.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
+    if (hex.length === 6) {
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
 
-    // Calculate relative luminance
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      // Calculate relative luminance
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
-    // Return black for light backgrounds, white for dark backgrounds
-    return luminance > 0.5 ? '#000000' : '#ffffff';
+      // Return black for light backgrounds, white for dark backgrounds
+      return luminance > 0.5 ? '#000000' : '#ffffff';
+    }
+
+    // Fallback
+    return 'var(--primary-text-color)';
   }
 
   // Format wind direction for display
@@ -1113,7 +1224,7 @@ class WindspeedHeatmapCard extends HTMLElement {
       case 'cardinal':
         return this._degreesToCardinal(degrees);
       case 'degrees':
-        return `${Math.round(degrees)}°`;
+        return `${Math.round(degrees)}deg`;
       default:
         return '';
     }
@@ -1239,7 +1350,7 @@ class WindspeedHeatmapCard extends HTMLElement {
 
     const unit = this._getUnit();
     const dirText = direction
-      ? ` ${this._degreesToCardinal(direction)} (${Math.round(direction)}°)`
+      ? ` ${this._degreesToCardinal(direction)} (${Math.round(direction)}deg)`
       : '';
 
     tooltip.innerHTML = `
@@ -1271,7 +1382,7 @@ class WindspeedHeatmapCard extends HTMLElement {
     return div.innerHTML;
   }
 
-  // Normalize size values: numbers → "Npx", strings → pass through
+  // Normalize size values: numbers -> "Npx", strings -> pass through
   _normalizeSize(value, defaultValue) {
     if (value === undefined || value === null || value === '') {
       return defaultValue;

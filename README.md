@@ -9,6 +9,8 @@ A custom Home Assistant Lovelace card that displays wind speed data as a color-c
 ## Features
 
 - Color-coded heatmap visualization of wind speed history
+- Default colors based on the official Beaufort wind scale (Force 0-12)
+- Optional color legend bar showing the scale
 - Configurable time periods and intervals
 - Configurable card sizing: compact mode, specify cell height/width, etc.
 - Optional wind direction display (arrows, cardinal directions, or degrees)
@@ -39,7 +41,7 @@ entity: sensor.wind_speed
 type: custom:windspeed-heatmap-card
 entity: sensor.wind_speed
 direction_entity: sensor.wind_direction
-title: "Patio Wind History"
+title: "Wind History"
 days: 7
 time_interval: 2
 time_format: "24"
@@ -47,22 +49,10 @@ unit: mph
 show_direction: true
 direction_format: arrow
 show_entity_name: true
+show_legend: true
 refresh_interval: 300
 click_action: tooltip
 rounded_corners: true
-color_thresholds:
-  - value: 0
-    color: "#e8f5e9"
-  - value: 5
-    color: "#81c784"
-  - value: 10
-    color: "#fff59d"
-  - value: 15
-    color: "#ffb74d"
-  - value: 20
-    color: "#e57373"
-  - value: 30
-    color: "#d32f2f"
 ```
 
 ## Configuration Options
@@ -80,11 +70,12 @@ color_thresholds:
 | `compact` | boolean | `false` | Enable compact mode (overrides cell sizing properties) |
 | `days` | number | `7` | Number of days to display (1-30) |
 | `direction_entity` | string | `null` | Wind direction sensor entity ID (optional) |
-| `rounded_corners` | boolean | `true` | Enable rounded corners on cells (set to false for flat grid) |
 | `direction_format` | string | `"arrow"` | Direction format: "arrow", "cardinal", or "degrees" |
 | `refresh_interval` | number | `300` | Data refresh interval in seconds |
+| `rounded_corners` | boolean | `true` | Enable rounded corners on cells (set to false for flat grid) |
 | `show_direction` | boolean | `true` | Show wind direction in cells |
 | `show_entity_name` | boolean | `false` | Show entity friendly name in footer |
+| `show_legend` | boolean | `false` | Show color scale legend bar below footer |
 | `time_format` | string | `"24"` | Time format: "12" or "24" |
 | `time_interval` | number | `2` | Hours per row: 1, 2, 3, 4, 6, 8, 12, or 24 |
 | `title` | string | `"Wind Speed History"` | Card title |
@@ -92,23 +83,7 @@ color_thresholds:
 
 ### Default Color Thresholds
 
-The default color scale is based on the Beaufort wind scale (for MPH):
-
-```yaml
-color_thresholds:
-  - value: 0     # Calm (0-5 mph)
-    color: "#e8f5e9"
-  - value: 5     # Light breeze (5-10 mph)
-    color: "#81c784"
-  - value: 10    # Moderate breeze (10-15 mph)
-    color: "#fff59d"
-  - value: 15    # Fresh breeze (15-20 mph)
-    color: "#ffb74d"
-  - value: 20    # Strong breeze (20-30 mph)
-    color: "#e57373"
-  - value: 30    # Gale force (30+ mph)
-    color: "#d32f2f"
-```
+The default color scale uses the official [Beaufort wind scale colors](beaufort_scale.html).
 
 You can customize these thresholds to match your local wind conditions and preferred color scheme.
 
@@ -182,15 +157,6 @@ Compact preset values:
 - Cell padding: 1px (vs 2px default)
 - Cell gap: 1px (vs 2px default)
 - Font size: 9px (vs 11px default)
-
-### Responsive Behavior
-
-On mobile screens (width < 600px), cell sizes automatically scale down by approximately 17%:
-- Default 36px height becomes 30px
-- Custom 40px height becomes 33px
-- Compact 24px height becomes 20px
-
-Note: Wind direction display is automatically hidden on mobile screens.
 
 ### Width Considerations
 
