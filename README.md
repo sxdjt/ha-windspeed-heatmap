@@ -20,7 +20,8 @@ A custom Home Assistant Lovelace card that displays wind speed data as a color-c
 - Auto-refresh with configurable intervals
 - **Pairs well with the [Temperature heatmap card](https://github.com/sxdjt/ha-temperature-heatmap)**
 
-<img width="508" height="750" alt="windspeed-heatmap" src="https://github.com/user-attachments/assets/5606f57c-9239-4154-b025-73ccc47a8c19" />
+<img width="505" height="733" alt="example" src="https://github.com/user-attachments/assets/a37a02da-7e3c-4242-ba5d-04c58a98a09b" />
+
 
 ## Installation
 
