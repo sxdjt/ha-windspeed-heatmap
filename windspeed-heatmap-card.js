@@ -1,4 +1,4 @@
-/* Last modified: 15-Jan-2026 14:42 */
+/* Last modified: 15-Jan-2026 15:12 */
 
 // Register with Home Assistant custom cards
 window.customCards = window.customCards || [];
@@ -9,7 +9,7 @@ window.customCards.push({
 });
 
 console.info(
-  '%c WINDSPEED-HEATMAP-CARD %c v0.3.0 ',
+  '%c WINDSPEED-HEATMAP-CARD %c v0.2.2 ',
   'color: lightblue; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray'
 );
