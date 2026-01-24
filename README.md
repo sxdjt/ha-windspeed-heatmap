@@ -9,7 +9,9 @@ A custom Home Assistant Lovelace card that displays wind speed data as a color-c
 ## Features
 
 - Color-coded heatmap visualization of wind speed history
+- Visual configuration editor for easy setup
 - Default colors based on the official Beaufort wind scale (Force 0-12)
+- Color interpolation with multiple methods (RGB, HSL, LAB, Gamma)
 - Optional color legend bar showing the scale
 - Configurable time periods and intervals
 - Configurable card sizing: compact mode, specify cell height/width, etc.
@@ -67,9 +69,11 @@ rounded_corners: true
 | `cell_padding` | number/string | `2` | Padding inside cells (0-20 pixels) |
 | `cell_width` | number/string | `"1fr"` | Column width (1fr, auto, 60px, 25%, etc.) |
 | `click_action` | string | `"tooltip"` | Cell click action: "tooltip", "more-info", or "none" |
+| `color_interpolation` | string | `"hsl"` | Interpolation method: "rgb", "gamma", "hsl", or "lab" |
 | `color_thresholds` | array | See below | Color mapping for wind speeds |
 | `compact` | boolean | `false` | Enable compact mode (overrides cell sizing properties) |
 | `days` | number | `7` | Number of days to display (1-30) |
+| `interpolate_colors` | boolean | `false` | Enable smooth color interpolation between thresholds |
 | `direction_entity` | string | `null` | Wind direction sensor entity ID (optional) |
 | `direction_format` | string | `"arrow"` | Direction format: "arrow", "cardinal", or "degrees" |
 | `refresh_interval` | number | `300` | Data refresh interval in seconds |
@@ -88,6 +92,29 @@ The default color scale uses the official [Beaufort wind scale colors](https://h
 
 You can customize these thresholds to match your local wind conditions and preferred color scheme.
 
+## Color Interpolation
+
+By default, cell colors are determined by finding the highest threshold that the wind speed meets or exceeds. This creates distinct color bands.
+
+Enable `interpolate_colors: true` to smoothly blend colors between thresholds for a gradient effect:
+
+```yaml
+type: custom:windspeed-heatmap-card
+entity: sensor.wind_speed
+interpolate_colors: true
+color_interpolation: hsl
+```
+
+### Interpolation Methods
+
+| Method | Description |
+|--------|-------------|
+| `rgb` | Linear RGB interpolation - simple but can produce muddy intermediate colors |
+| `gamma` | Gamma-corrected RGB - perceptually more uniform than linear RGB |
+| `hsl` | HSL color space (default) - produces vibrant intermediate colors, takes shortest hue path |
+| `lab` | LAB color space - perceptually uniform, best for scientific visualization |
+
+**Recommendation:** Use `hsl` (default) for most cases. Use `lab` when perceptual uniformity is important.
 
 ## Wind Direction Formats
 

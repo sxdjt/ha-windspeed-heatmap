@@ -1,4 +1,4 @@
-/* Last modified: 15-Jan-2026 15:12 */
+/* Last modified: 23-Jan-2026 16:00 */
 
 // Register with Home Assistant custom cards
 window.customCards = window.customCards || [];
@@ -9,7 +9,7 @@ window.customCards.push({
 });
 
 console.info(
-  '%c WINDSPEED-HEATMAP-CARD %c v0.2.2 ',
+  '%c WINDSPEED-HEATMAP-CARD %c v0.3.0 ',
   'color: lightblue; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray'
 );
@@ -60,6 +60,9 @@ class WindspeedHeatmapCard extends HTMLElement {
 
     // Event delegation for all clicks
     this._content.addEventListener('click', this._handleClick.bind(this));
+
+    // Store cached responses in memory
+    this._responseCache = new Map();
   }
 
   // Home Assistant required method: set card configuration
@@ -78,6 +81,12 @@ class WindspeedHeatmapCard extends HTMLElement {
     // Validate days
     if (config.days && (config.days < 1 || config.days > 30)) {
       throw new Error('days must be between 1 and 30');
+    }
+
+    // Validate color_interpolation
+    const validInterpolations = ['rgb', 'gamma', 'hsl', 'lab'];
+    if (config.color_interpolation && !validInterpolations.includes(config.color_interpolation)) {
+      throw new Error(`color_interpolation must be one of: ${validInterpolations.join(', ')}`);
     }
 
     // Validate cell sizing options
@@ -133,8 +142,10 @@ class WindspeedHeatmapCard extends HTMLElement {
       // Units
       unit: config.unit || null,
 
-      // Color thresholds
-      color_thresholds: config.color_thresholds || DEFAULT_THRESHOLDS.slice(),
+      // Color thresholds - use defaults if not provided or empty
+      color_thresholds: (config.color_thresholds && config.color_thresholds.length > 0)
+        ? config.color_thresholds
+        : DEFAULT_THRESHOLDS.slice(),
 
       // Direction display
       show_direction: config.show_direction !== false,
@@ -159,7 +170,9 @@ class WindspeedHeatmapCard extends HTMLElement {
 
       // Visual options
       rounded_corners: config.rounded_corners !== false,  // Default true
-      show_legend: config.show_legend || false  // Default false
+      show_legend: config.show_legend || false,  // Default false
+      interpolate_colors: config.interpolate_colors || false,
+      color_interpolation: config.color_interpolation || 'hsl',  // 'gamma', 'hsl', 'lab', 'rgb'
     };
 
     // Sort thresholds by value (ascending) - create mutable copy to avoid "read-only" errors
@@ -169,6 +182,37 @@ class WindspeedHeatmapCard extends HTMLElement {
     if (this._hass) {
       this._clearAndSetInterval();
     }
+  }
+
+  // Returns the visual config editor element
+  static getConfigElement() {
+    return document.createElement('windspeed-heatmap-card-editor');
+  }
+
+  // Returns a minimal configuration that will result in a working card
+  static getStubConfig(hass) {
+    // Find the first wind speed sensor
+    const windSensors = Object.keys(hass.states)
+      .filter(entityId => {
+        if (!entityId.startsWith('sensor.')) return false;
+        const entity = hass.states[entityId];
+        const deviceClass = entity?.attributes?.device_class;
+        const unit = entity?.attributes?.unit_of_measurement?.toLowerCase() || '';
+        // Check for wind speed by device class or unit
+        return deviceClass === 'wind_speed' ||
+               unit.includes('mph') ||
+               unit.includes('km/h') ||
+               unit.includes('m/s') ||
+               unit.includes('knot');
+      });
+
+    return {
+      entity: windSensors.length > 0 ? windSensors[0] : '',
+      title: 'Wind Speed History',
+      days: 7,
+      time_interval: 2,
+      color_thresholds: DEFAULT_THRESHOLDS.slice()
+    };
   }
 
   // Home Assistant required method: receive hass object updates
@@ -641,6 +685,36 @@ class WindspeedHeatmapCard extends HTMLElement {
     const maxAge = this._config.refresh_interval * 1000;
 
     return age > maxAge;
+  }
+
+  async fetchWithCache(url, timeoutMs = 30000, ttlMs = 5 * 60 * 1000) {
+    const now = Date.now();
+    // Include viewOffset in cache key to prevent stale data when navigating
+    const cacheKey = `${url}_offset${this._viewOffset}`;
+
+    // Check if the cache has a valid entry
+    const cached = this._responseCache.get(cacheKey);
+    if (cached && cached.expiry > now) {
+      console.log('Windspeed Heatmap: Using cached data for:', cacheKey);
+      return cached.data;
+    }
+
+    // Fetch with timeout
+    const fetchPromise = this._hass.callApi('GET', url);
+
+    const data = await Promise.race([
+      fetchPromise,
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error(`Request timeout after ${timeoutMs}ms`)),
+          timeoutMs
+        )
+      ),
+    ]);
+
+    // Store in cache
+    this._responseCache.set(cacheKey, { data, expiry: now + ttlMs });
+    return data;
   }
 
   // Fetch historical data from Home Assistant
@@ -1151,18 +1225,256 @@ class WindspeedHeatmapCard extends HTMLElement {
     }
 
     const thresholds = this._config.color_thresholds;
-    let color = thresholds[0].color;
 
-    // Find highest threshold that speed meets or exceeds
-    for (let i = 0; i < thresholds.length; i++) {
-      if (speed >= thresholds[i].value) {
-        color = thresholds[i].color;
-      } else {
-        break;
+    // If interpolation is disabled, use threshold-based coloring
+    if (!this._config.interpolate_colors) {
+      let color = thresholds[0].color;
+      for (let i = 0; i < thresholds.length; i++) {
+        if (speed >= thresholds[i].value) {
+          color = thresholds[i].color;
+        } else {
+          break;
+        }
+      }
+      return color;
+    }
+
+    // Interpolation mode: find the two thresholds to blend between
+    if (speed <= thresholds[0].value) {
+      return thresholds[0].color;
+    }
+
+    if (speed >= thresholds[thresholds.length - 1].value) {
+      return thresholds[thresholds.length - 1].color;
+    }
+
+    // Find the two thresholds to interpolate between
+    for (let i = 0; i < thresholds.length - 1; i++) {
+      if (speed >= thresholds[i].value && speed < thresholds[i + 1].value) {
+        const t = (speed - thresholds[i].value) / (thresholds[i + 1].value - thresholds[i].value);
+        return this._interpolateColor(thresholds[i].color, thresholds[i + 1].color, t);
       }
     }
 
-    return color;
+    return thresholds[thresholds.length - 1].color;
+  }
+
+  // Interpolate between two colors using the configured method
+  _interpolateColor(color1, color2, t) {
+    const rgb1 = this._parseColor(color1);
+    const rgb2 = this._parseColor(color2);
+
+    if (!rgb1 || !rgb2) return color1;
+
+    const method = this._config.color_interpolation || 'hsl';
+
+    switch (method) {
+      case 'rgb':
+        return this._interpolateRGB(rgb1, rgb2, t);
+      case 'gamma':
+        return this._interpolateGamma(rgb1, rgb2, t);
+      case 'hsl':
+        return this._interpolateHSL(rgb1, rgb2, t);
+      case 'lab':
+        return this._interpolateLAB(rgb1, rgb2, t);
+      default:
+        return this._interpolateHSL(rgb1, rgb2, t);
+    }
+  }
+
+  // Parse color string to RGB object
+  _parseColor(color) {
+    // Handle rgba() format
+    if (color.startsWith('rgba(')) {
+      const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (match) {
+        return {
+          r: parseInt(match[1], 10),
+          g: parseInt(match[2], 10),
+          b: parseInt(match[3], 10)
+        };
+      }
+    }
+    // Handle rgb() format
+    if (color.startsWith('rgb(')) {
+      const match = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (match) {
+        return {
+          r: parseInt(match[1], 10),
+          g: parseInt(match[2], 10),
+          b: parseInt(match[3], 10)
+        };
+      }
+    }
+    // Handle hex format
+    const hex = color.replace('#', '');
+    if (hex.length === 6) {
+      return {
+        r: parseInt(hex.substr(0, 2), 16),
+        g: parseInt(hex.substr(2, 2), 16),
+        b: parseInt(hex.substr(4, 2), 16)
+      };
+    }
+    return null;
+  }
+
+  // Linear RGB interpolation
+  _interpolateRGB(rgb1, rgb2, t) {
+    const r = Math.round(rgb1.r + (rgb2.r - rgb1.r) * t);
+    const g = Math.round(rgb1.g + (rgb2.g - rgb1.g) * t);
+    const b = Math.round(rgb1.b + (rgb2.b - rgb1.b) * t);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  // Gamma-corrected RGB interpolation
+  _interpolateGamma(rgb1, rgb2, t, gamma = 2.2) {
+    const r = Math.pow(Math.pow(rgb1.r / 255, gamma) * (1 - t) + Math.pow(rgb2.r / 255, gamma) * t, 1 / gamma) * 255;
+    const g = Math.pow(Math.pow(rgb1.g / 255, gamma) * (1 - t) + Math.pow(rgb2.g / 255, gamma) * t, 1 / gamma) * 255;
+    const b = Math.pow(Math.pow(rgb1.b / 255, gamma) * (1 - t) + Math.pow(rgb2.b / 255, gamma) * t, 1 / gamma) * 255;
+    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+  }
+
+  // HSL interpolation (takes shortest path around hue wheel)
+  _interpolateHSL(rgb1, rgb2, t) {
+    const hsl1 = this._rgbToHsl(rgb1);
+    const hsl2 = this._rgbToHsl(rgb2);
+
+    // Handle hue interpolation (shortest path)
+    let h;
+    const hueDiff = hsl2.h - hsl1.h;
+    if (Math.abs(hueDiff) > 180) {
+      if (hueDiff > 0) {
+        h = hsl1.h + (hueDiff - 360) * t;
+      } else {
+        h = hsl1.h + (hueDiff + 360) * t;
+      }
+    } else {
+      h = hsl1.h + hueDiff * t;
+    }
+    if (h < 0) h += 360;
+    if (h >= 360) h -= 360;
+
+    const s = hsl1.s + (hsl2.s - hsl1.s) * t;
+    const l = hsl1.l + (hsl2.l - hsl1.l) * t;
+
+    const rgb = this._hslToRgb({ h, s, l });
+    return `rgb(${Math.round(rgb.r)}, ${Math.round(rgb.g)}, ${Math.round(rgb.b)})`;
+  }
+
+  // LAB interpolation (perceptually uniform)
+  _interpolateLAB(rgb1, rgb2, t) {
+    const lab1 = this._rgbToLab(rgb1);
+    const lab2 = this._rgbToLab(rgb2);
+
+    const L = lab1.L + (lab2.L - lab1.L) * t;
+    const a = lab1.a + (lab2.a - lab1.a) * t;
+    const b = lab1.b + (lab2.b - lab1.b) * t;
+
+    const rgb = this._labToRgb({ L, a, b });
+    return `rgb(${Math.round(rgb.r)}, ${Math.round(rgb.g)}, ${Math.round(rgb.b)})`;
+  }
+
+  // RGB to HSL conversion
+  _rgbToHsl(rgb) {
+    const r = rgb.r / 255;
+    const g = rgb.g / 255;
+    const b = rgb.b / 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+
+    if (max === min) {
+      return { h: 0, s: 0, l };
+    }
+
+    const d = max - min;
+    const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    let h;
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) * 60; break;
+      case g: h = ((b - r) / d + 2) * 60; break;
+      case b: h = ((r - g) / d + 4) * 60; break;
+    }
+
+    return { h, s, l };
+  }
+
+  // HSL to RGB conversion
+  _hslToRgb(hsl) {
+    const { h, s, l } = hsl;
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = l - c / 2;
+    let r = 0, g = 0, b = 0;
+
+    if (h < 60) [r, g, b] = [c, x, 0];
+    else if (h < 120) [r, g, b] = [x, c, 0];
+    else if (h < 180) [r, g, b] = [0, c, x];
+    else if (h < 240) [r, g, b] = [0, x, c];
+    else if (h < 300) [r, g, b] = [x, 0, c];
+    else [r, g, b] = [c, 0, x];
+
+    return {
+      r: (r + m) * 255,
+      g: (g + m) * 255,
+      b: (b + m) * 255
+    };
+  }
+
+  // RGB to LAB conversion
+  _rgbToLab(rgb) {
+    // RGB to XYZ
+    let r = rgb.r / 255;
+    let g = rgb.g / 255;
+    let b = rgb.b / 255;
+
+    r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+    g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+    b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+
+    const x = (r * 0.4124564 + g * 0.3575761 + b * 0.1804375) / 0.95047;
+    const y = (r * 0.2126729 + g * 0.7151522 + b * 0.0721750);
+    const z = (r * 0.0193339 + g * 0.1191920 + b * 0.9503041) / 1.08883;
+
+    // XYZ to LAB
+    const fx = x > 0.008856 ? Math.pow(x, 1 / 3) : (7.787 * x) + 16 / 116;
+    const fy = y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + 16 / 116;
+    const fz = z > 0.008856 ? Math.pow(z, 1 / 3) : (7.787 * z) + 16 / 116;
+
+    return {
+      L: (116 * fy) - 16,
+      a: 500 * (fx - fy),
+      b: 200 * (fy - fz)
+    };
+  }
+
+  // LAB to RGB conversion
+  _labToRgb(lab) {
+    // LAB to XYZ
+    const fy = (lab.L + 16) / 116;
+    const fx = lab.a / 500 + fy;
+    const fz = fy - lab.b / 200;
+
+    const x = (Math.pow(fx, 3) > 0.008856 ? Math.pow(fx, 3) : (fx - 16 / 116) / 7.787) * 0.95047;
+    const y = Math.pow(fy, 3) > 0.008856 ? Math.pow(fy, 3) : (fy - 16 / 116) / 7.787;
+    const z = (Math.pow(fz, 3) > 0.008856 ? Math.pow(fz, 3) : (fz - 16 / 116) / 7.787) * 1.08883;
+
+    // XYZ to RGB
+    let r = x * 3.2404542 + y * -1.5371385 + z * -0.4985314;
+    let g = x * -0.9692660 + y * 1.8760108 + z * 0.0415560;
+    let b = x * 0.0556434 + y * -0.2040259 + z * 1.0572252;
+
+    r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : 12.92 * r;
+    g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : 12.92 * g;
+    b = b > 0.0031308 ? 1.055 * Math.pow(b, 1 / 2.4) - 0.055 : 12.92 * b;
+
+    return {
+      r: Math.max(0, Math.min(255, r * 255)),
+      g: Math.max(0, Math.min(255, g * 255)),
+      b: Math.max(0, Math.min(255, b * 255))
+    };
   }
 
   // Get contrasting text color (black or white) for background color
@@ -1417,5 +1729,325 @@ class WindspeedHeatmapCard extends HTMLElement {
   }
 }
 
-// Register custom element
+// Visual configuration editor
+class WindspeedHeatmapCardEditor extends HTMLElement {
+  constructor() {
+    super();
+    this._config = {};
+    this._hass = null;
+    this.content = null;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this.content) this._buildEditor();
+  }
+
+  async setConfig(config) {
+    // Clone to avoid modifying the read-only object
+    this._config = { ...(config || {}) };
+
+    // Ensure that the entity picker element is available to us before we render.
+    const helpers = await window.loadCardHelpers();
+    if (!customElements.get('ha-entity-picker')) {
+      const entitiesCard = await helpers.createCardElement({
+        type: 'entities',
+        entities: [],
+      });
+      await entitiesCard.constructor.getConfigElement();
+    }
+
+    // Default values
+    const defaults = {
+      entity: '',
+      direction_entity: '',
+      title: 'Wind Speed History',
+      days: 7,
+      time_interval: 2,
+      time_format: '24',
+      show_direction: true,
+      direction_format: 'arrow',
+      refresh_interval: 300,
+      click_action: 'more-info',
+      show_entity_name: false,
+      cell_height: 36,
+      cell_width: '1fr',
+      cell_padding: 2,
+      cell_gap: 2,
+      cell_font_size: 11,
+      compact: false,
+      rounded_corners: true,
+      show_legend: false,
+      interpolate_colors: false,
+      color_interpolation: 'hsl',
+      color_thresholds: [],
+    };
+    this._config = { ...defaults, ...this._config };
+
+    if (this.content) this._updateValues();
+  }
+
+  getConfig() {
+    return { ...this._config };
+  }
+
+  _buildEditor() {
+    this.content = document.createElement('div');
+    this.content.style.display = 'grid';
+    this.content.style.gridGap = '8px';
+    this.content.style.padding = '8px';
+    this.appendChild(this.content);
+
+    this.container_threshold = {};
+    this.fields = {};
+
+    // Field definitions
+    const fields = [
+      { type: 'entity', key: 'entity', label: 'Wind Speed Entity', required: true },
+      { type: 'entity', key: 'direction_entity', label: 'Wind Direction Entity' },
+      { type: 'text', key: 'title', label: 'Title' },
+      { type: 'number', key: 'days', label: 'Days', min: 1, max: 30 },
+      { type: 'number', key: 'time_interval', label: 'Time Interval (hours)', min: 1, max: 24 },
+      { type: 'select', key: 'time_format', label: 'Time Format', options: { 24: '24h', 12: '12h' } },
+      { type: 'switch', key: 'show_direction', label: 'Show Direction' },
+      { type: 'select', key: 'direction_format', label: 'Direction Format', options: { arrow: 'Arrow', cardinal: 'Cardinal', degrees: 'Degrees' } },
+      { type: 'number', key: 'refresh_interval', label: 'Refresh Interval (s)', min: 10, max: 3600 },
+      { type: 'select', key: 'click_action', label: 'Click Action', options: { none: 'None', 'more-info': 'More Info', tooltip: 'Tooltip' } },
+      { type: 'switch', key: 'show_entity_name', label: 'Show Entity Name' },
+      { type: 'switch', key: 'show_legend', label: 'Show Legend' },
+      { type: 'number', key: 'cell_height', label: 'Cell Height', min: 10, max: 200 },
+      { type: 'text', key: 'cell_width', label: 'Cell Width (px or fr)' },
+      { type: 'number', key: 'cell_padding', label: 'Cell Padding', min: 0, max: 50 },
+      { type: 'number', key: 'cell_gap', label: 'Cell Gap', min: 0, max: 50 },
+      { type: 'number', key: 'cell_font_size', label: 'Cell Font Size', min: 6, max: 32 },
+      { type: 'switch', key: 'compact', label: 'Compact Mode' },
+      { type: 'switch', key: 'rounded_corners', label: 'Rounded Corners' },
+      { type: 'switch', key: 'interpolate_colors', label: 'Interpolate Colors' },
+      { type: 'select', key: 'color_interpolation', label: 'Color Interpolation', options: { rgb: 'RGB', gamma: 'Gamma RGB', hsl: 'HSL', lab: 'LAB' } },
+      { type: 'thresholds', key: 'color_thresholds', label: 'Colors' },
+    ];
+
+    // Create fields dynamically
+    fields.forEach((f) => this._createField(f));
+
+    this._updateValues();
+  }
+
+  _createThresholdEditor() {
+    // Function to create a threshold row
+    const createRow = (threshold, index) => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      row.style.gap = '8px';
+
+      const valueInput = document.createElement('ha-textfield');
+      valueInput.type = 'number';
+      valueInput.value = threshold.value;
+
+      valueInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const newThresholds = [...this._config.color_thresholds];
+        const updatedThreshold = { ...this._config.color_thresholds[index] };
+        updatedThreshold.value = Number(e.target.value);
+        newThresholds[index] = updatedThreshold;
+        this._onFieldChange('color_thresholds', newThresholds);
+        this._refreshThresholdEditor();
+      });
+
+      const colorInput = document.createElement('input');
+      colorInput.type = 'color';
+      // Convert rgba to hex for color picker
+      colorInput.value = this._rgbaToHex(threshold.color);
+      colorInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const newThresholds = [...this._config.color_thresholds];
+        const updatedThreshold = { ...this._config.color_thresholds[index] };
+        updatedThreshold.color = e.target.value;
+        newThresholds[index] = updatedThreshold;
+        this._onFieldChange('color_thresholds', newThresholds);
+        this._refreshThresholdEditor();
+      });
+
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = 'X';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const newThresholds = [...this._config.color_thresholds];
+        newThresholds.splice(index, 1);
+        this._onFieldChange('color_thresholds', newThresholds);
+        this._refreshThresholdEditor();
+      });
+
+      row.appendChild(valueInput);
+      row.appendChild(colorInput);
+      row.appendChild(removeBtn);
+      this.container_threshold.appendChild(row);
+    };
+
+    // Create all rows
+    if (!this._config.color_thresholds) this._config.color_thresholds = [];
+    this._config.color_thresholds.forEach((t, i) => createRow(t, i));
+  }
+
+  // Convert rgba() to hex for color picker
+  _rgbaToHex(color) {
+    if (color.startsWith('#')) return color;
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+      const r = parseInt(match[1], 10).toString(16).padStart(2, '0');
+      const g = parseInt(match[2], 10).toString(16).padStart(2, '0');
+      const b = parseInt(match[3], 10).toString(16).padStart(2, '0');
+      return `#${r}${g}${b}`;
+    }
+    return '#ffffff';
+  }
+
+  _refreshThresholdEditor() {
+    // Remove old rows and recreate
+    while (this.container_threshold.firstChild) {
+      this.container_threshold.removeChild(this.container_threshold.firstChild);
+    }
+    this._createThresholdEditor();
+  }
+
+  _updateValues() {
+    if (!this._config) return;
+    for (const key in this.fields) {
+      const input = this.fields[key].input;
+      if (this.fields[key].type === 'checkbox' || this.fields[key].type === 'switch') {
+        input.checked = !!this._config[key];
+      } else if (this.fields[key].type === 'thresholds') {
+        this._refreshThresholdEditor();
+      } else {
+        input.value = this._config[key] !== undefined ? this._config[key] : '';
+      }
+    }
+  }
+
+  // Generic function to create a field
+  _createField({ type, key, label, min, max, options, required }) {
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.flexDirection = 'column';
+    wrapper.style.marginBottom = '8px';
+
+    let input;
+
+    if (type === 'switch') {
+      wrapper.style.flexDirection = 'row';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.gap = '8px';
+
+      input = document.createElement('ha-switch');
+
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+
+      wrapper.appendChild(input);
+      wrapper.appendChild(lbl);
+
+      input.addEventListener('change', (e) => {
+        e.stopPropagation();
+        this._onFieldChange(key, input.checked);
+      });
+    } else if (type === 'thresholds') {
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+      wrapper.appendChild(lbl);
+
+      const list = document.createElement('div');
+      list.style.display = 'grid';
+      list.style.gridGap = '8px';
+      wrapper.appendChild(list);
+
+      this.container_threshold = list;
+
+      const addBtn = document.createElement('button');
+      addBtn.textContent = 'Add Threshold';
+      addBtn.style.marginTop = '8px';
+      addBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const newThresholds = [...this._config.color_thresholds];
+        newThresholds.push({ value: 0, color: '#ffffff' });
+        this._onFieldChange(key, newThresholds);
+      });
+
+      wrapper.appendChild(addBtn);
+    } else {
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+      wrapper.appendChild(lbl);
+
+      if (type === 'entity') {
+        input = document.createElement('ha-entity-picker');
+        input.setAttribute('allow-custom-entity', '');
+        input.hass = this._hass;
+
+        input.addEventListener('value-changed', (e) => {
+          e.stopPropagation();
+          this._onFieldChange(key, e.detail.value);
+        });
+      } else if (type === 'number' || type === 'text') {
+        input = document.createElement('ha-textfield');
+        input.type = type;
+        if (min !== undefined) input.min = min;
+        if (max !== undefined) input.max = max;
+        if (required) input.required = true;
+
+        input.addEventListener('change', (e) => {
+          e.stopPropagation();
+          const value = type === 'number' ? Number(input.value) : input.value;
+          this._onFieldChange(key, value);
+        });
+      } else if (type === 'select') {
+        input = document.createElement('ha-select');
+        for (const val in options) {
+          const opt = document.createElement('mwc-list-item');
+          opt.value = val;
+          opt.innerText = options[val];
+          input.appendChild(opt);
+        }
+
+        input.addEventListener('selected', (e) => {
+          e.stopPropagation();
+          this._onFieldChange(key, e.target.value);
+        });
+        input.addEventListener('closed', (e) => {
+          e.stopPropagation();
+        });
+      }
+
+      wrapper.appendChild(input);
+    }
+    this.fields[key] = {};
+    this.fields[key].input = input;
+    this.fields[key].type = type;
+    this.content.appendChild(wrapper);
+  }
+
+  // Handle field changes
+  _onFieldChange(key, value) {
+    const newConfig = { ...this._config, [key]: value };
+    this._config = newConfig;
+    this.dispatchEvent(
+      new CustomEvent('config-changed', {
+        detail: { config: newConfig },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
+  // Cleanup when editor is removed from DOM
+  disconnectedCallback() {
+    this.fields = {};
+    this.container_threshold = null;
+  }
+}
+
+// Register custom elements
+customElements.define('windspeed-heatmap-card-editor', WindspeedHeatmapCardEditor);
 customElements.define('windspeed-heatmap-card', WindspeedHeatmapCard);
+
