@@ -12,13 +12,11 @@ A custom Home Assistant Lovelace card that displays wind speed data as a color-c
 - Visual configuration editor for easy setup
 - Default colors based on the official Beaufort wind scale (Force 0-12)
 - Color interpolation with multiple methods (RGB, HSL, LAB, Gamma)
-- Optional color legend bar showing the scale
 - Configurable time periods and intervals
 - Configurable card sizing: compact mode, specify cell height/width, etc.
 - Optional wind direction display (arrows, cardinal directions, or degrees)
 - Customizable color thresholds based on wind speed
 - Min/Max/Avg statistics
-- Responsive design with dark theme support
 - Auto-refresh with configurable intervals
 - **Pairs well with the [Temperature heatmap card](https://github.com/sxdjt/ha-temperature-heatmap)**
 
@@ -73,9 +71,9 @@ rounded_corners: true
 | `color_thresholds` | array | See below | Color mapping for wind speeds |
 | `compact` | boolean | `false` | Enable compact mode (overrides cell sizing properties) |
 | `days` | number | `7` | Number of days to display (1-30) |
-| `interpolate_colors` | boolean | `false` | Enable smooth color interpolation between thresholds |
 | `direction_entity` | string | `null` | Wind direction sensor entity ID (optional) |
 | `direction_format` | string | `"arrow"` | Direction format: "arrow", "cardinal", or "degrees" |
+| `interpolate_colors` | boolean | `false` | Enable smooth color interpolation between thresholds |
 | `refresh_interval` | number | `300` | Data refresh interval in seconds |
 | `rounded_corners` | boolean | `true` | Enable rounded corners on cells (set to false for flat grid) |
 | `show_direction` | boolean | `true` | Show wind direction in cells |
@@ -219,14 +217,6 @@ type: custom:windspeed-heatmap-card
 entity: sensor.wind_speed
 compact: true
 days: 14
-```
-
-**Fixed width columns (may cause horizontal scroll):**
-```yaml
-type: custom:windspeed-heatmap-card
-entity: sensor.wind_speed
-cell_width: 60
-days: 30
 ```
 
 ## License
