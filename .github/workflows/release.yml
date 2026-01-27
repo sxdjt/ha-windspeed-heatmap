@@ -20,6 +20,6 @@ jobs:
       - name: Upload JS to Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ha-windspeed-heatmap.js
+          files: windspeed-heatmap-card.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
