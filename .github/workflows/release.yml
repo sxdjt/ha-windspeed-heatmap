@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag to upload assets to (e.g. v0.3.1)'
+        required: true
+        default: 'v0.3.1'
 
 jobs:
   build:
@@ -12,15 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # If you have a build step (npm/webpack), uncomment these:
-      # - name: Install dependencies
-      #   run: npm install
-      # - name: Build
-      #   run: npm run build
-
       - name: Upload JS to Release
         uses: softprops/action-gh-release@v1
         with:
-          files: windspeed-heatmap.js
+          # Use the input if manual, otherwise use the tag from the release event
+          tag_name: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
+          files: dist/ha-windspeed-heatmap.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
