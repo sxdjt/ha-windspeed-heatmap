@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # If you have a build step (npm/webpack), uncomment these:
+      # - name: Install dependencies
+      #   run: npm install
+      # - name: Build
+      #   run: npm run build
+
+      - name: Upload JS to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ha-windspeed-heatmap.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
