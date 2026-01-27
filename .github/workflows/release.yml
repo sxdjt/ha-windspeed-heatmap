@@ -8,7 +8,7 @@ on:
       tag_name:
         description: 'Tag to upload assets to (e.g. v0.3.1)'
         required: true
-        default: 'v0.3.1'
+        default: ''
 
 jobs:
   build:
@@ -22,6 +22,6 @@ jobs:
         with:
           # Use the input if manual, otherwise use the tag from the release event
           tag_name: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
-          files: dist/ha-windspeed-heatmap.js
+          files: windspeed-heatmap-card.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
