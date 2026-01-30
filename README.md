@@ -11,6 +11,7 @@ A custom Home Assistant Lovelace card that displays wind speed data as a color-c
 - Color-coded heatmap visualization of wind speed history
 - Visual configuration editor for easy setup
 - Default colors based on the official Beaufort wind scale (Force 0-12)
+- Auto-selects appropriate thresholds for multiple units (mph, km/h, m/s, knots)
 - Color interpolation with multiple methods (RGB, HSL, LAB, Gamma)
 - Configurable time periods and intervals
 - Configurable card sizing: compact mode, specify cell height/width, etc.
@@ -82,11 +83,22 @@ rounded_corners: true
 | `time_format` | string | `"24"` | Time format: "12" or "24" |
 | `time_interval` | number | `2` | Hours per row: 1, 2, 3, 4, 6, 8, 12, or 24 |
 | `title` | string | `"Wind Speed History"` | Card title |
-| `unit` | string | auto-detect | Unit of measurement (e.g., "mph", "km/h", "m/s") |
+| `unit` | string | auto-detect | Unit of measurement: "mph", "km/h", "m/s", "kn"/"kt"/"knots" |
 
 ### Default Color Thresholds
 
 The default color scale uses the official [Beaufort wind scale colors](https://htmlpreview.github.io/?https://github.com/sxdjt/ha-windspeed-heatmap/blob/main/beaufort_colors.html).
+
+The card automatically selects the appropriate threshold values based on the detected or configured unit of measurement:
+
+| Unit | Supported Formats | Example Threshold Range |
+|------|-------------------|-------------------------|
+| Miles per hour | `mph` | 0-73+ mph |
+| Kilometers per hour | `km/h`, `kph`, `kmh` | 0-118+ km/h |
+| Meters per second | `m/s`, `mps` | 0-32.7+ m/s |
+| Knots | `kn`, `kt`, `kts`, `knot`, `knots` | 0-64+ kn |
+
+The unit is auto-detected from your wind speed entity's `unit_of_measurement` attribute. You can also explicitly set it using the `unit` configuration option.
 
 You can customize these thresholds to match your local wind conditions and preferred color scheme.
 

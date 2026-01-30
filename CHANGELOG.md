@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-01-30
+
+### Added
+- Default Beaufort scale thresholds for multiple units of measurement:
+  - mph (miles per hour) - existing
+  - km/h (kilometers per hour)
+  - m/s (meters per second)
+  - knots (kn, kt, kts)
+- Auto-detection of appropriate thresholds based on entity's unit_of_measurement
+- Unit selector in visual editor (Auto-detect, mph, km/h, m/s, knots)
+- Support for nautical unit detection in getStubConfig (kn, kt)
+
 ## [0.3.0] - 2026-01-23
 
 ### Added
