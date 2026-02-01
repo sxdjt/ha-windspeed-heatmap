@@ -76,6 +76,18 @@ export class WindspeedHeatmapCard extends HTMLElement {
       throw new Error(`color_interpolation must be one of: ${validInterpolations.join(', ')}`);
     }
 
+    // Validate data_source
+    const validDataSources = ['auto', 'history', 'statistics'];
+    if (config.data_source && !validDataSources.includes(config.data_source)) {
+      throw new Error(`data_source must be one of: ${validDataSources.join(', ')}`);
+    }
+
+    // Validate statistic_type
+    const validStatisticTypes = ['max', 'mean', 'min'];
+    if (config.statistic_type && !validStatisticTypes.includes(config.statistic_type)) {
+      throw new Error(`statistic_type must be one of: ${validStatisticTypes.join(', ')}`);
+    }
+
     // Validate cell sizing options
     if (config.cell_height !== undefined) {
       const height = typeof config.cell_height === 'number' ? config.cell_height : parseFloat(config.cell_height);
@@ -168,6 +180,10 @@ export class WindspeedHeatmapCard extends HTMLElement {
       show_legend: config.show_legend || false,  // Default false
       interpolate_colors: config.interpolate_colors || false,
       color_interpolation: config.color_interpolation || 'hsl',  // 'gamma', 'hsl', 'lab', 'rgb'
+
+      // Data source options
+      data_source: config.data_source || 'auto',  // 'auto', 'history', 'statistics'
+      statistic_type: config.statistic_type || 'max',  // 'max', 'mean', 'min' (for statistics data)
     };
 
     // Sort thresholds by value (ascending) - create mutable copy to avoid "read-only" errors
@@ -326,6 +342,24 @@ export class WindspeedHeatmapCard extends HTMLElement {
     return data;
   }
 
+  // Determine which data source to use based on config and availability
+  _getDataSource() {
+    const source = this._config.data_source;
+
+    if (source === 'history') return 'history';
+    if (source === 'statistics') return 'statistics';
+
+    // Auto mode: prefer statistics for historical data (viewOffset < 0)
+    // or when explicitly looking at older data
+    // Statistics are hourly aggregates - good for longer time ranges
+    if (this._viewOffset < 0) {
+      return 'statistics';
+    }
+
+    // For current view, use history for more granular data
+    return 'history';
+  }
+
   // Fetch historical data from Home Assistant
   async _fetchHistoryData() {
     if (this._isLoading) {
@@ -337,7 +371,8 @@ export class WindspeedHeatmapCard extends HTMLElement {
     this._error = null;
     this._render();  // Show loading state
 
-    console.log('Windspeed Heatmap: Starting data fetch...');
+    const dataSource = this._getDataSource();
+    console.log(`Windspeed Heatmap: Starting data fetch using ${dataSource}...`);
 
     try {
       // Calculate date range in LOCAL timezone, excluding current incomplete interval
@@ -365,55 +400,12 @@ export class WindspeedHeatmapCard extends HTMLElement {
       startTime.setHours(0, 0, 0, 0);  // Start of first day at midnight
 
       console.log(`Windspeed Heatmap: Fetching from ${startTime.toLocaleString()} to ${endTime.toLocaleString()}`);
-      console.log(`Windspeed Heatmap: Current time: ${now.toLocaleString()}, Last complete interval: ${endTime.toLocaleString()}`);
 
-      // Convert local times to ISO strings (the API returns data in UTC, so we send UTC times)
-      const startTimeISO = startTime.toISOString();
-      const endTimeISO = endTime.toISOString();
-
-      console.log(`Windspeed Heatmap: API times - Start: ${startTimeISO}, End: ${endTimeISO}`);
-
-      // Build API URLs - fetch both in parallel for better performance
-      // Note: Not using significant_changes_only as it can be slow in some HA setups
-      const speedUrl = `history/period/${startTimeISO}?` +
-        `filter_entity_id=${this._config.entity}&` +
-        `end_time=${endTimeISO}&` +
-        `minimal_response&no_attributes`;
-
-      const fetchPromises = [this._hass.callApi('GET', speedUrl)];
-
-      // Add direction fetch if configured
-      if (this._config.direction_entity && this._config.show_direction) {
-        const directionUrl = `history/period/${startTimeISO}?` +
-          `filter_entity_id=${this._config.direction_entity}&` +
-          `end_time=${endTimeISO}&` +
-          `minimal_response&no_attributes`;
-        fetchPromises.push(this._hass.callApi('GET', directionUrl));
+      if (dataSource === 'statistics') {
+        await this._fetchStatisticsData(startTime, endTime);
+      } else {
+        await this._fetchHistoryApiData(startTime, endTime);
       }
-
-      // Fetch with timeout to prevent hanging
-      const fetchWithTimeout = (promise, timeoutMs = 30000) => {
-        return Promise.race([
-          promise,
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Request timeout after 30 seconds')), timeoutMs)
-          )
-        ]);
-      };
-
-      // Fetch in parallel with timeout
-      const startFetch = Date.now();
-      const results = await fetchWithTimeout(Promise.all(fetchPromises));
-      const fetchDuration = ((Date.now() - startFetch) / 1000).toFixed(1);
-
-      console.log(`Windspeed Heatmap: Received ${results[0]?.[0]?.length || 0} speed points, ${results[1]?.[0]?.length || 0} direction points in ${fetchDuration}s`);
-
-      this._historyData = {
-        speed: results[0]?.[0] || [],
-        direction: results[1] ? (results[1][0] || []) : [],
-        startTime,
-        endTime
-      };
 
       this._lastFetch = Date.now();
 
@@ -439,6 +431,128 @@ export class WindspeedHeatmapCard extends HTMLElement {
       };
       this._render();
     }
+  }
+
+  // Fetch data using the history/period REST API (short-term states)
+  async _fetchHistoryApiData(startTime, endTime) {
+    const startTimeISO = startTime.toISOString();
+    const endTimeISO = endTime.toISOString();
+
+    console.log(`Windspeed Heatmap: Using history API - Start: ${startTimeISO}, End: ${endTimeISO}`);
+
+    // Build API URLs - fetch both in parallel for better performance
+    const speedUrl = `history/period/${startTimeISO}?` +
+      `filter_entity_id=${this._config.entity}&` +
+      `end_time=${endTimeISO}&` +
+      `minimal_response&no_attributes`;
+
+    const fetchPromises = [this._hass.callApi('GET', speedUrl)];
+
+    // Add direction fetch if configured
+    if (this._config.direction_entity && this._config.show_direction) {
+      const directionUrl = `history/period/${startTimeISO}?` +
+        `filter_entity_id=${this._config.direction_entity}&` +
+        `end_time=${endTimeISO}&` +
+        `minimal_response&no_attributes`;
+      fetchPromises.push(this._hass.callApi('GET', directionUrl));
+    }
+
+    // Fetch with timeout to prevent hanging
+    const fetchWithTimeout = (promise, timeoutMs = 30000) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout after 30 seconds')), timeoutMs)
+        )
+      ]);
+    };
+
+    // Fetch in parallel with timeout
+    const startFetch = Date.now();
+    const results = await fetchWithTimeout(Promise.all(fetchPromises));
+    const fetchDuration = ((Date.now() - startFetch) / 1000).toFixed(1);
+
+    console.log(`Windspeed Heatmap: Received ${results[0]?.[0]?.length || 0} speed points, ${results[1]?.[0]?.length || 0} direction points in ${fetchDuration}s`);
+
+    this._historyData = {
+      speed: results[0]?.[0] || [],
+      direction: results[1] ? (results[1][0] || []) : [],
+      startTime,
+      endTime,
+      dataSource: 'history'
+    };
+  }
+
+  // Fetch data using the recorder/statistics_during_period WebSocket API (long-term statistics)
+  async _fetchStatisticsData(startTime, endTime) {
+    const startTimeISO = startTime.toISOString();
+    const endTimeISO = endTime.toISOString();
+
+    console.log(`Windspeed Heatmap: Using statistics API - Start: ${startTimeISO}, End: ${endTimeISO}`);
+
+    // Build list of statistic IDs to fetch
+    const statisticIds = [this._config.entity];
+    if (this._config.direction_entity && this._config.show_direction) {
+      statisticIds.push(this._config.direction_entity);
+    }
+
+    // Fetch with timeout to prevent hanging
+    const fetchWithTimeout = (promise, timeoutMs = 30000) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout after 30 seconds')), timeoutMs)
+        )
+      ]);
+    };
+
+    const startFetch = Date.now();
+
+    // Call the WebSocket API for statistics
+    // The API returns hourly aggregated data (mean, min, max) from the statistics table
+    const statsResult = await fetchWithTimeout(
+      this._hass.callWS({
+        type: 'recorder/statistics_during_period',
+        start_time: startTimeISO,
+        end_time: endTimeISO,
+        statistic_ids: statisticIds,
+        period: 'hour',  // Hourly aggregates
+      })
+    );
+
+    const fetchDuration = ((Date.now() - startFetch) / 1000).toFixed(1);
+
+    // Convert statistics format to history format for processing
+    // Statistics API returns: { "sensor.entity": [{ start, end, mean, min, max, sum, state }, ...] }
+    const speedStats = statsResult[this._config.entity] || [];
+    const directionStats = this._config.direction_entity
+      ? (statsResult[this._config.direction_entity] || [])
+      : [];
+
+    console.log(`Windspeed Heatmap: Received ${speedStats.length} speed stats, ${directionStats.length} direction stats in ${fetchDuration}s`);
+
+    // Convert statistics to a format compatible with our processing
+    // Each stat has: start (ISO string), mean, min, max
+    const statisticType = this._config.statistic_type;  // 'max', 'mean', or 'min'
+
+    const speedData = speedStats.map(stat => ({
+      last_changed: stat.start,
+      state: String(stat[statisticType] ?? stat.mean ?? ''),
+    })).filter(point => point.state !== '' && point.state !== 'null');
+
+    // For direction, use mean (circular average would be ideal but mean is reasonable)
+    const directionData = directionStats.map(stat => ({
+      last_changed: stat.start,
+      state: String(stat.mean ?? ''),
+    })).filter(point => point.state !== '' && point.state !== 'null');
+
+    this._historyData = {
+      speed: speedData,
+      direction: directionData,
+      startTime,
+      endTime,
+      dataSource: 'statistics'
+    };
   }
 
   // Process raw history data into grid structure

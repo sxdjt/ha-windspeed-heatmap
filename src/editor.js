@@ -58,6 +58,8 @@ export class WindspeedHeatmapCardEditor extends HTMLElement {
       interpolate_colors: false,
       color_interpolation: 'hsl',
       color_thresholds: [],
+      data_source: 'auto',
+      statistic_type: 'max',
     };
     this._config = { ...defaults, ...this._config };
 
@@ -87,6 +89,8 @@ export class WindspeedHeatmapCardEditor extends HTMLElement {
       { type: 'number', key: 'time_interval', label: 'Time Interval (hours)', min: 1, max: 24 },
       { type: 'select', key: 'time_format', label: 'Time Format', options: { 24: '24h', 12: '12h' } },
       { type: 'select', key: 'unit', label: 'Unit', options: { '': 'Auto-detect', 'mph': 'mph', 'km/h': 'km/h', 'm/s': 'm/s', 'kn': 'knots' } },
+      { type: 'select', key: 'data_source', label: 'Data Source', options: { 'auto': 'Auto (statistics for past, history for current)', 'history': 'History only (limited by purge_keep_days)', 'statistics': 'Statistics only (long-term hourly data)' } },
+      { type: 'select', key: 'statistic_type', label: 'Statistic Type', options: { 'max': 'Maximum', 'mean': 'Average', 'min': 'Minimum' } },
       { type: 'switch', key: 'show_direction', label: 'Show Direction' },
       { type: 'select', key: 'direction_format', label: 'Direction Format', options: { arrow: 'Arrow', cardinal: 'Cardinal', degrees: 'Degrees' } },
       { type: 'number', key: 'refresh_interval', label: 'Refresh Interval (s)', min: 10, max: 3600 },
