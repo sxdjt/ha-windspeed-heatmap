@@ -4,6 +4,7 @@ claude.md
 
 # Node modules (if using TypeScript/build system)
 node_modules/
+package-lock.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
