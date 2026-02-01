@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-01-31
+
+### Added
+- Long-term statistics support for viewing history beyond recorder purge_keep_days limit
+- `data_source` option: 'auto', 'history', or 'statistics'
+- `statistic_type` option: 'max', 'mean', or 'min' for statistics data
+
 ## [0.4.0] - 2026-01-30
 
 ### Added
