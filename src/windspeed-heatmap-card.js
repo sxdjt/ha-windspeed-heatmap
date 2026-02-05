@@ -375,18 +375,23 @@ export class WindspeedHeatmapCard extends HTMLElement {
     console.log(`Windspeed Heatmap: Starting data fetch using ${dataSource}...`);
 
     try {
-      // Calculate date range in LOCAL timezone, excluding current incomplete interval
+      // Calculate date range in LOCAL timezone, including current partial interval
       const now = new Date();
 
       let endTime;
 
+      // Calculate the current partial bucket key (only used when viewing current time)
+      let partialBucketKey = null;
+
       if (this._viewOffset === 0) {
-        // Current view: use last complete interval
-        const currentHour = now.getHours();
-        const intervalHours = this._config.time_interval;
-        const lastCompleteHour = Math.floor(currentHour / intervalHours) * intervalHours;
+        // Current view: use current time to include partial bucket data
         endTime = new Date(now);
-        endTime.setHours(lastCompleteHour, 0, 0, 0);
+
+        // Calculate which bucket is currently in progress
+        const intervalHours = this._config.time_interval;
+        const currentDateKey = getDateKey(now);
+        const currentHourBucket = getHourBucket(now.getHours(), intervalHours);
+        partialBucketKey = `${currentDateKey}_${currentHourBucket}`;
       } else {
         // Historical view: use end of the target day
         endTime = new Date(now);
@@ -400,11 +405,14 @@ export class WindspeedHeatmapCard extends HTMLElement {
       startTime.setHours(0, 0, 0, 0);  // Start of first day at midnight
 
       console.log(`Windspeed Heatmap: Fetching from ${startTime.toLocaleString()} to ${endTime.toLocaleString()}`);
+      if (partialBucketKey) {
+        console.log(`Windspeed Heatmap: Current partial bucket: ${partialBucketKey}`);
+      }
 
       if (dataSource === 'statistics') {
-        await this._fetchStatisticsData(startTime, endTime);
+        await this._fetchStatisticsData(startTime, endTime, partialBucketKey);
       } else {
-        await this._fetchHistoryApiData(startTime, endTime);
+        await this._fetchHistoryApiData(startTime, endTime, partialBucketKey);
       }
 
       this._lastFetch = Date.now();
@@ -434,7 +442,7 @@ export class WindspeedHeatmapCard extends HTMLElement {
   }
 
   // Fetch data using the history/period REST API (short-term states)
-  async _fetchHistoryApiData(startTime, endTime) {
+  async _fetchHistoryApiData(startTime, endTime, partialBucketKey = null) {
     const startTimeISO = startTime.toISOString();
     const endTimeISO = endTime.toISOString();
 
@@ -479,12 +487,13 @@ export class WindspeedHeatmapCard extends HTMLElement {
       direction: results[1] ? (results[1][0] || []) : [],
       startTime,
       endTime,
+      partialBucketKey,
       dataSource: 'history'
     };
   }
 
   // Fetch data using the recorder/statistics_during_period WebSocket API (long-term statistics)
-  async _fetchStatisticsData(startTime, endTime) {
+  async _fetchStatisticsData(startTime, endTime, partialBucketKey = null) {
     const startTimeISO = startTime.toISOString();
     const endTimeISO = endTime.toISOString();
 
@@ -551,6 +560,7 @@ export class WindspeedHeatmapCard extends HTMLElement {
       direction: directionData,
       startTime,
       endTime,
+      partialBucketKey,
       dataSource: 'statistics'
     };
   }
@@ -562,7 +572,7 @@ export class WindspeedHeatmapCard extends HTMLElement {
       return;
     }
 
-    const { speed, direction, startTime } = this._historyData;
+    const { speed, direction, startTime, partialBucketKey } = this._historyData;
     const intervalHours = this._config.time_interval;
     const rowsPerDay = 24 / intervalHours;
 
@@ -643,7 +653,8 @@ export class WindspeedHeatmapCard extends HTMLElement {
             date,
             speed: bucket?.maxSpeed ?? null,
             direction: bucket?.avgDirection ?? null,
-            hasData: bucket && bucket.maxSpeed !== null
+            hasData: bucket && bucket.maxSpeed !== null,
+            isPartial: partialBucketKey && key === partialBucketKey
           };
 
           if (cell.speed !== null) {
@@ -821,16 +832,21 @@ export class WindspeedHeatmapCard extends HTMLElement {
       ? formatDirection(cell.direction, this._config.direction_format)
       : '';
 
+    // Add asterisk indicator for partial (in-progress) buckets
+    const partialIndicator = cell.isPartial ? '*' : '';
+    const partialLabel = cell.isPartial ? ' (in progress)' : '';
+
     return `
-      <div class="cell"
+      <div class="cell${cell.isPartial ? ' partial' : ''}"
            style="background-color: ${bgColor}; color: ${textColor}"
            data-speed="${cell.speed}"
            data-direction="${cell.direction || ''}"
            data-date="${cell.date.toISOString()}"
+           data-partial="${cell.isPartial ? 'true' : 'false'}"
            tabindex="0"
            role="button"
-           aria-label="Wind speed ${cell.speed.toFixed(1)}">
-        <span class="speed">${cell.speed.toFixed(1)}</span>
+           aria-label="Wind speed ${cell.speed.toFixed(1)}${partialLabel}">
+        <span class="speed">${cell.speed.toFixed(1)}${partialIndicator}</span>
         ${directionStr ? `<span class="direction">${directionStr}</span>` : ''}
       </div>
     `;
@@ -984,6 +1000,7 @@ export class WindspeedHeatmapCard extends HTMLElement {
     const speed = parseFloat(cellElement.dataset.speed);
     const direction = cellElement.dataset.direction;
     const date = new Date(cellElement.dataset.date);
+    const isPartial = cellElement.dataset.partial === 'true';
 
     // Remove any existing tooltip
     const existing = this.shadowRoot.querySelector('.tooltip');
@@ -1004,10 +1021,12 @@ export class WindspeedHeatmapCard extends HTMLElement {
     const dirText = direction
       ? ` ${degreesToCardinal(direction)} (${Math.round(direction)}deg)`
       : '';
+    const partialNote = isPartial ? '<div><em>(in progress)</em></div>' : '';
 
     tooltip.innerHTML = `
       <div><strong>${dateStr}</strong></div>
       <div>Speed: ${speed.toFixed(1)} ${unit}${dirText}</div>
+      ${partialNote}
     `;
 
     // Position tooltip near the cell

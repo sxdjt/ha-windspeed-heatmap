@@ -208,6 +208,11 @@ export function createStyleElement() {
       box-shadow: none;
     }
 
+    .cell.partial {
+      border: 2px dashed currentColor;
+      opacity: 0.9;
+    }
+
     .speed {
       font-weight: bold;
       line-height: 1.1;

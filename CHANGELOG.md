@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.6.0] - 2026-02-05
+
+### Added
+- Current time bucket now shows in-progress data with asterisk indicator
+- Partial buckets display with dashed border and "(in progress)" in tooltip
 
 ## [0.5.0] - 2026-01-31
 
