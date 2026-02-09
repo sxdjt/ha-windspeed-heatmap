@@ -55,6 +55,8 @@ show_legend: true
 refresh_interval: 300
 click_action: tooltip
 rounded_corners: true
+data_source: auto
+statistic_type: max
 ```
 
 ## Configuration Options
@@ -67,10 +69,11 @@ rounded_corners: true
 | `cell_height` | number/string | `36` | Cell height (10-200 pixels) |
 | `cell_padding` | number/string | `2` | Padding inside cells (0-20 pixels) |
 | `cell_width` | number/string | `"1fr"` | Column width (1fr, auto, 60px, 25%, etc.) |
-| `click_action` | string | `"tooltip"` | Cell click action: "tooltip", "more-info", or "none" |
+| `click_action` | string | `"more-info"` | Cell click action: "more-info", "tooltip", or "none" |
 | `color_interpolation` | string | `"hsl"` | Interpolation method: "rgb", "gamma", "hsl", or "lab" |
 | `color_thresholds` | array | See below | Color mapping for wind speeds |
 | `compact` | boolean | `false` | Enable compact mode (overrides cell sizing properties) |
+| `data_source` | string | `"auto"` | Data source: "auto", "history", or "statistics" |
 | `days` | number | `7` | Number of days to display (1-30) |
 | `direction_entity` | string | `null` | Wind direction sensor entity ID (optional) |
 | `direction_format` | string | `"arrow"` | Direction format: "arrow", "cardinal", or "degrees" |
@@ -80,6 +83,7 @@ rounded_corners: true
 | `show_direction` | boolean | `true` | Show wind direction in cells |
 | `show_entity_name` | boolean | `false` | Show entity friendly name in footer |
 | `show_legend` | boolean | `false` | Show color scale legend bar below footer |
+| `statistic_type` | string | `"max"` | Statistic to use for statistics data: "max", "mean", or "min" |
 | `time_format` | string | `"24"` | Time format: "12" or "24" |
 | `time_interval` | number | `2` | Hours per row: 1, 2, 3, 4, 6, 8, 12, or 24 |
 | `title` | string | `"Wind Speed History"` | Card title |
@@ -237,4 +241,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-For issues, feature requests, or contributions, please visit the [GitHub repository](https://github.com/YOUR-USERNAME/ha-windspeed-heatmap).
+For issues, feature requests, or contributions, please visit the [GitHub repository](https://github.com/sxdjt/ha-windspeed-heatmap).
