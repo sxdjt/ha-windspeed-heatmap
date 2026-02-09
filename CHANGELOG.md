@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1] - 2026-02-09
+
+### Fixed
+- Fix sticky hover on Android touch devices - cell hover styles now wrapped in `@media (hover: hover)` so they only apply on devices with a true pointer, preventing the cell from rendering on top of the more-info popup after tapping
+- VERSION constant synced with package.json (was stuck at 0.5.0)
+
 ## [0.6.0] - 2026-02-05
 
 ### Added

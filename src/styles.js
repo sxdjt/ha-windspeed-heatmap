@@ -186,10 +186,20 @@ export function createStyleElement() {
       box-sizing: border-box;
     }
 
-    .cell:hover:not(.no-data) {
-      transform: scale(1.08);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      z-index: 10;
+    /* Only apply hover effects on devices with a true hover-capable pointer.
+       On touch devices, :hover is sticky after tap and can cause the cell to
+       render on top of the more-info popup due to the transform stacking context. */
+    @media (hover: hover) {
+      .cell:hover:not(.no-data) {
+        transform: scale(1.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+      }
+
+      .cell.no-data:hover {
+        transform: none;
+        box-shadow: none;
+      }
     }
 
     .cell:focus {
@@ -201,11 +211,6 @@ export function createStyleElement() {
       background-color: var(--disabled-color, #f0f0f0);
       cursor: default;
       opacity: 0.4;
-    }
-
-    .cell.no-data:hover {
-      transform: none;
-      box-shadow: none;
     }
 
     .cell.partial {
