@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.2] - 2026-02-27
+
+### Fixed
+- Legend labels now positioned at their true value-proportional locations on the gradient bar, with collision detection to prevent crowding
+- Legend moved above the min/max/avg footer so statistics always display at the bottom of the card
+
 ## [0.6.1] - 2026-02-09
 
 ### Fixed
