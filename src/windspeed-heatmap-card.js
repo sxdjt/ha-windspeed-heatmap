@@ -692,8 +692,8 @@ export class WindspeedHeatmapCard extends HTMLElement {
       ${this._error ? this._renderError() : ''}
       ${this._isLoading ? this._renderLoading() : ''}
       ${this._processedData && !this._error ? this._renderGrid() : ''}
-      ${this._processedData && !this._error ? this._renderFooter() : ''}
       ${this._processedData && !this._error && this._config.show_legend ? this._renderLegend() : ''}
+      ${this._processedData && !this._error ? this._renderFooter() : ''}
     `;
 
     // Set CSS variables for grid layout and cell sizing
