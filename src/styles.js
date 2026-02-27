@@ -343,24 +343,17 @@ export function createStyleElement() {
     }
 
     .legend-labels {
-      display: flex;
-      justify-content: space-between;
+      position: relative;
+      height: 14px;
       margin-top: 4px;
       font-size: 9px;
       color: var(--secondary-text-color);
     }
 
     .legend-labels span {
-      flex: 1;
-      text-align: center;
-    }
-
-    .legend-labels span:first-child {
-      text-align: left;
-    }
-
-    .legend-labels span:last-child {
-      text-align: right;
+      position: absolute;
+      transform: translateX(-50%);
+      white-space: nowrap;
     }
 
     /* Responsive adjustments */

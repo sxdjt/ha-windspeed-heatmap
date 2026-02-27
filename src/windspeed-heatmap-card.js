@@ -890,24 +890,23 @@ export class WindspeedHeatmapCard extends HTMLElement {
       return `${t.color} ${percent.toFixed(0)}%`;
     }).join(', ');
 
-    // Select a few key labels to show (don't crowd it)
-    // Show: 0, ~mid-low, ~mid, ~mid-high, max
-    const labelIndices = [0, 3, 6, 9, thresholds.length - 1];
-    const labels = labelIndices
-      .filter(i => i < thresholds.length)
-      .map(i => thresholds[i].value)
-      .filter((v, i, arr) => arr.indexOf(v) === i);  // Remove duplicates
-
-    // Format last label with + sign
-    const labelHtml = labels.map((v, i) => {
-      const isLast = i === labels.length - 1;
-      return `<span>${v}${isLast ? '+' : ''}</span>`;
+    // Position labels at their value-proportional gradient positions with
+    // collision detection to avoid crowding on dense threshold sets.
+    const denominator = Math.max(maxValue, 75);
+    const MIN_LABEL_SPACING = 8; // percent of bar width
+    let lastLabelPct = -Infinity;
+    const labelHtml = thresholds.map((t, i) => {
+      const pct = Math.min((t.value / denominator) * 100, 100);
+      if (pct - lastLabelPct < MIN_LABEL_SPACING) return '';
+      lastLabelPct = pct;
+      const isLastThreshold = i === thresholds.length - 1;
+      return `<span style="left:${pct.toFixed(1)}%;">${t.value}${isLastThreshold ? '+' : ''}</span>`;
     }).join('');
 
     return `
       <div class="legend">
         <div class="legend-bar" style="background: linear-gradient(to right, ${gradientStops});"></div>
-        <div class="legend-labels">
+        <div class="legend-labels" style="position:relative;">
           ${labelHtml}
         </div>
       </div>
