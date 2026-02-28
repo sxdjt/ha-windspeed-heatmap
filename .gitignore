@@ -9,9 +9,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Build outputs
+# Build system (no longer used - single-file deployment)
+src/
+dist/
 build/
-dist/*.map
+rollup.config.js
+package.json
+package-lock.json
 
 # IDE files
 .vscode/
