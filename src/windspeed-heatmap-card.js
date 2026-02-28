@@ -174,6 +174,7 @@ export class WindspeedHeatmapCard extends HTMLElement {
       cell_gap: config.cell_gap !== undefined ? config.cell_gap : 2,
       cell_font_size: config.cell_font_size !== undefined ? config.cell_font_size : 11,
       compact: config.compact || false,
+      compact_header: config.compact_header || false,
 
       // Visual options
       rounded_corners: config.rounded_corners !== false,  // Default true
@@ -695,6 +696,9 @@ export class WindspeedHeatmapCard extends HTMLElement {
       ${this._processedData && !this._error && this._config.show_legend ? this._renderLegend() : ''}
       ${this._processedData && !this._error ? this._renderFooter() : ''}
     `;
+
+    // Apply compact-header class to card element
+    this._content.classList.toggle('compact-header', !!this._config.compact_header);
 
     // Set CSS variables for grid layout and cell sizing
     if (this._processedData) {

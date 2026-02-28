@@ -73,6 +73,7 @@ statistic_type: max
 | `color_interpolation` | string | `"hsl"` | Interpolation method: "rgb", "gamma", "hsl", or "lab" |
 | `color_thresholds` | array | See below | Color mapping for wind speeds |
 | `compact` | boolean | `false` | Enable compact mode (overrides cell sizing properties) |
+| `compact_header` | boolean | `false` | Reduce title size, header/footer padding, and nav arrow size |
 | `data_source` | string | `"auto"` | Data source: "auto", "history", or "statistics" |
 | `days` | number | `7` | Number of days to display (1-30) |
 | `direction_entity` | string | `null` | Wind direction sensor entity ID (optional) |
