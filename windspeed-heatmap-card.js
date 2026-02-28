@@ -1,3 +1,2461 @@
-/* Last modified: 27-Feb-2026 23:53 */
-const t=[{value:0,color:"rgba(187, 222, 251, 1)"},{value:1,color:"rgba(144, 202, 249, 1)"},{value:4,color:"rgba(100, 181, 246, 1)"},{value:8,color:"rgba(66, 165, 245, 1)"},{value:13,color:"rgba(30, 136, 229, 1)"},{value:19,color:"rgba(192, 202, 81, 1)"},{value:25,color:"rgba(225, 213, 60, 1)"},{value:32,color:"rgba(255, 213, 79, 1)"},{value:39,color:"rgba(255, 183, 77, 1)"},{value:47,color:"rgba(239, 108, 0, 1)"},{value:55,color:"rgba(244, 81, 30, 1)"},{value:64,color:"rgba(229, 57, 53, 1)"},{value:73,color:"rgba(183, 28, 28, 1)"}],e=[{value:0,color:"rgba(187, 222, 251, 1)"},{value:.3,color:"rgba(144, 202, 249, 1)"},{value:1.6,color:"rgba(100, 181, 246, 1)"},{value:3.4,color:"rgba(66, 165, 245, 1)"},{value:5.5,color:"rgba(30, 136, 229, 1)"},{value:8,color:"rgba(192, 202, 81, 1)"},{value:10.8,color:"rgba(225, 213, 60, 1)"},{value:13.9,color:"rgba(255, 213, 79, 1)"},{value:17.2,color:"rgba(255, 183, 77, 1)"},{value:20.8,color:"rgba(239, 108, 0, 1)"},{value:24.5,color:"rgba(244, 81, 30, 1)"},{value:28.5,color:"rgba(229, 57, 53, 1)"},{value:32.7,color:"rgba(183, 28, 28, 1)"}],n=[{value:0,color:"rgba(187, 222, 251, 1)"},{value:1,color:"rgba(144, 202, 249, 1)"},{value:6,color:"rgba(100, 181, 246, 1)"},{value:12,color:"rgba(66, 165, 245, 1)"},{value:20,color:"rgba(30, 136, 229, 1)"},{value:29,color:"rgba(192, 202, 81, 1)"},{value:39,color:"rgba(225, 213, 60, 1)"},{value:50,color:"rgba(255, 213, 79, 1)"},{value:62,color:"rgba(255, 183, 77, 1)"},{value:75,color:"rgba(239, 108, 0, 1)"},{value:89,color:"rgba(244, 81, 30, 1)"},{value:103,color:"rgba(229, 57, 53, 1)"},{value:118,color:"rgba(183, 28, 28, 1)"}],i=[{value:0,color:"rgba(187, 222, 251, 1)"},{value:1,color:"rgba(144, 202, 249, 1)"},{value:4,color:"rgba(100, 181, 246, 1)"},{value:7,color:"rgba(66, 165, 245, 1)"},{value:11,color:"rgba(30, 136, 229, 1)"},{value:17,color:"rgba(192, 202, 81, 1)"},{value:22,color:"rgba(225, 213, 60, 1)"},{value:28,color:"rgba(255, 213, 79, 1)"},{value:34,color:"rgba(255, 183, 77, 1)"},{value:41,color:"rgba(239, 108, 0, 1)"},{value:48,color:"rgba(244, 81, 30, 1)"},{value:56,color:"rgba(229, 57, 53, 1)"},{value:64,color:"rgba(183, 28, 28, 1)"}];function o(o){if(!o)return t;const a=o.toLowerCase().trim();return"m/s"===a||"mps"===a?e:"km/h"===a||"kph"===a||"kmh"===a?n:"kn"===a||"kt"===a||"kts"===a||"knot"===a||"knots"===a?i:t}function a(t){if(t.startsWith("rgba(")){const e=t.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);if(e)return{r:parseInt(e[1],10),g:parseInt(e[2],10),b:parseInt(e[3],10)}}if(t.startsWith("rgb(")){const e=t.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);if(e)return{r:parseInt(e[1],10),g:parseInt(e[2],10),b:parseInt(e[3],10)}}const e=t.replace("#","");return 6===e.length?{r:parseInt(e.substr(0,2),16),g:parseInt(e.substr(2,2),16),b:parseInt(e.substr(4,2),16)}:null}function r(t){const e=t.r/255,n=t.g/255,i=t.b/255,o=Math.max(e,n,i),a=Math.min(e,n,i),r=(o+a)/2;if(o===a)return{h:0,s:0,l:r};const s=o-a,l=r>.5?s/(2-o-a):s/(o+a);let c;switch(o){case e:c=60*((n-i)/s+(n<i?6:0));break;case n:c=60*((i-e)/s+2);break;case i:c=60*((e-n)/s+4)}return{h:c,s:l,l:r}}function s(t,e,n){const i=r(t),o=r(e);let a;const s=o.h-i.h;a=Math.abs(s)>180?s>0?i.h+(s-360)*n:i.h+(s+360)*n:i.h+s*n,a<0&&(a+=360),a>=360&&(a-=360);const l=function(t){const{h:e,s:n,l:i}=t,o=(1-Math.abs(2*i-1))*n,a=o*(1-Math.abs(e/60%2-1)),r=i-o/2;let s=0,l=0,c=0;return[s,l,c]=e<60?[o,a,0]:e<120?[a,o,0]:e<180?[0,o,a]:e<240?[0,a,o]:e<300?[a,0,o]:[o,0,a],{r:255*(s+r),g:255*(l+r),b:255*(c+r)}}({h:a,s:i.s+(o.s-i.s)*n,l:i.l+(o.l-i.l)*n});return`rgb(${Math.round(l.r)}, ${Math.round(l.g)}, ${Math.round(l.b)})`}function l(t){let e=t.r/255,n=t.g/255,i=t.b/255;e=e>.04045?Math.pow((e+.055)/1.055,2.4):e/12.92,n=n>.04045?Math.pow((n+.055)/1.055,2.4):n/12.92,i=i>.04045?Math.pow((i+.055)/1.055,2.4):i/12.92;const o=(.4124564*e+.3575761*n+.1804375*i)/.95047,a=.2126729*e+.7151522*n+.072175*i,r=(.0193339*e+.119192*n+.9503041*i)/1.08883,s=o>.008856?Math.pow(o,1/3):7.787*o+16/116,l=a>.008856?Math.pow(a,1/3):7.787*a+16/116;return{L:116*l-16,a:500*(s-l),b:200*(l-(r>.008856?Math.pow(r,1/3):7.787*r+16/116))}}function c(t,e,n){const i=l(t),o=l(e),a=function(t){const e=(t.L+16)/116,n=t.a/500+e,i=e-t.b/200,o=.95047*(Math.pow(n,3)>.008856?Math.pow(n,3):(n-16/116)/7.787),a=Math.pow(e,3)>.008856?Math.pow(e,3):(e-16/116)/7.787,r=1.08883*(Math.pow(i,3)>.008856?Math.pow(i,3):(i-16/116)/7.787);let s=3.2404542*o+-1.5371385*a+-.4985314*r,l=-.969266*o+1.8760108*a+.041556*r,c=.0556434*o+-.2040259*a+1.0572252*r;return s=s>.0031308?1.055*Math.pow(s,1/2.4)-.055:12.92*s,l=l>.0031308?1.055*Math.pow(l,1/2.4)-.055:12.92*l,c=c>.0031308?1.055*Math.pow(c,1/2.4)-.055:12.92*c,{r:Math.max(0,Math.min(255,255*s)),g:Math.max(0,Math.min(255,255*l)),b:Math.max(0,Math.min(255,255*c))}}({L:i.L+(o.L-i.L)*n,a:i.a+(o.a-i.a)*n,b:i.b+(o.b-i.b)*n});return`rgb(${Math.round(a.r)}, ${Math.round(a.g)}, ${Math.round(a.b)})`}function d(t,e,n,i="hsl"){const o=a(t),r=a(e);if(!o||!r)return t;switch(i){case"rgb":return function(t,e,n){return`rgb(${Math.round(t.r+(e.r-t.r)*n)}, ${Math.round(t.g+(e.g-t.g)*n)}, ${Math.round(t.b+(e.b-t.b)*n)})`}(o,r,n);case"gamma":return function(t,e,n,i=2.2){const o=255*Math.pow(Math.pow(t.r/255,i)*(1-n)+Math.pow(e.r/255,i)*n,1/i),a=255*Math.pow(Math.pow(t.g/255,i)*(1-n)+Math.pow(e.g/255,i)*n,1/i),r=255*Math.pow(Math.pow(t.b/255,i)*(1-n)+Math.pow(e.b/255,i)*n,1/i);return`rgb(${Math.round(o)}, ${Math.round(a)}, ${Math.round(r)})`}(o,r,n);case"hsl":default:return s(o,r,n);case"lab":return c(o,r,n)}}function h(t){const e=document.createElement("div");return e.textContent=t,e.innerHTML}function p(t,e="24"){if("24"===e)return String(t).padStart(2,"0");return`${0===t?12:t>12?t-12:t}${t<12?"a":"p"}`}function g(t){return["N","NE","E","SE","S","SW","W","NW"][Math.round(t/45)%8]}function u(t,e){if(null==t)return"";switch(e){case"arrow":return function(t){const e=(t+180)%360;return["↑","↗","→","↘","↓","↙","←","↖"][Math.round(e/45)%8]}(t);case"cardinal":return g(t);case"degrees":return`${Math.round(t)}deg`;default:return""}}function _(t,e){return null==t||""===t?e:"number"==typeof t?`${t}px`:String(t)}function f(t){return`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`}function m(t,e){return Math.floor(t/e)*e}class v extends HTMLElement{constructor(){super(),this.attachShadow({mode:"open"}),this._config={},this._hass=null,this._historyData=null,this._processedData=null,this._lastFetch=0,this._viewOffset=0,this._isLoading=!1,this._error=null,this._interval=null,this.shadowRoot.appendChild(function(){const t=document.createElement("style");return t.textContent="\n    /* Main container */\n    ha-card {\n      display: block;\n      padding: 0;\n      overflow: hidden;\n    }\n\n    /* Card header with title and navigation */\n    .card-header {\n      display: flex;\n      align-items: center;\n      justify-content: space-between;\n      padding: 16px;\n      border-bottom: 1px solid var(--divider-color);\n      flex-wrap: wrap;\n      gap: 8px;\n    }\n\n    .title {\n      font-size: 20px;\n      font-weight: 500;\n      color: var(--primary-text-color);\n    }\n\n    /* Navigation controls */\n    .nav-controls {\n      display: flex;\n      align-items: center;\n      gap: 12px;\n    }\n\n    .nav-btn {\n      background: var(--primary-color);\n      color: var(--text-primary-color, white);\n      border: none;\n      border-radius: 4px;\n      width: 32px;\n      height: 32px;\n      font-size: 18px;\n      cursor: pointer;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      transition: opacity 0.2s ease;\n    }\n\n    .nav-btn:hover:not(:disabled) {\n      opacity: 0.8;\n    }\n\n    .nav-btn:disabled {\n      opacity: 0.3;\n      cursor: not-allowed;\n    }\n\n    .nav-btn:focus {\n      outline: 2px solid var(--primary-color);\n      outline-offset: 2px;\n    }\n\n    .nav-btn-current {\n      background: var(--primary-color);\n      color: var(--text-primary-color, white);\n      border: none;\n      border-radius: 4px;\n      padding: 6px 12px;\n      font-size: 13px;\n      font-weight: 500;\n      cursor: pointer;\n      transition: opacity 0.2s ease;\n    }\n\n    .nav-btn-current:hover {\n      opacity: 0.8;\n    }\n\n    .nav-btn-current:focus {\n      outline: 2px solid var(--primary-color);\n      outline-offset: 2px;\n    }\n\n    .nav-btn-current.hidden {\n      visibility: hidden;\n      pointer-events: none;\n    }\n\n    .date-range {\n      font-size: 14px;\n      color: var(--secondary-text-color);\n      min-width: 120px;\n      text-align: center;\n    }\n\n    /* Heatmap grid container */\n    .heatmap-grid {\n      padding: 16px;\n    }\n\n    .month-header {\n      text-align: center;\n      font-size: 16px;\n      font-weight: 500;\n      color: var(--primary-text-color);\n      margin-bottom: 12px;\n    }\n\n    /* Grid wrapper with time labels and data grid */\n    .grid-wrapper {\n      display: grid;\n      grid-template-columns: auto 1fr;\n      gap: 8px;\n      align-items: start;\n    }\n\n    /* Time labels column */\n    .time-labels {\n      display: flex;\n      flex-direction: column;\n      gap: var(--cell-gap, 2px);\n      padding-top: 28px;  /* Align with data grid (after date headers) */\n    }\n\n    .time-label {\n      height: var(--cell-height, 36px);\n      display: flex;\n      align-items: center;\n      justify-content: flex-end;\n      padding-right: 8px;\n      font-size: var(--cell-font-size, 11px);\n      color: var(--secondary-text-color);\n      font-weight: 500;\n    }\n\n    /* Data grid container */\n    .data-grid-container {\n      display: flex;\n      flex-direction: column;\n      gap: 4px;\n    }\n\n    /* Date headers row */\n    .date-headers {\n      display: grid;\n      grid-template-columns: repeat(var(--days-count, 7), 1fr);\n      gap: 2px;\n      margin-bottom: 4px;\n    }\n\n    .date-header {\n      text-align: center;\n      font-weight: bold;\n      font-size: 12px;\n      color: var(--primary-text-color);\n      padding: 4px;\n    }\n\n    /* Data cells grid */\n    .data-grid {\n      display: grid;\n      grid-template-columns: repeat(var(--days-count, 7), var(--cell-width, 1fr));\n      grid-auto-rows: var(--cell-height, 36px);\n      gap: var(--cell-gap, 2px);\n    }\n\n    /* Individual cells */\n    .cell {\n      display: flex;\n      flex-direction: column;\n      align-items: center;\n      justify-content: center;\n      border-radius: var(--cell-border-radius, 4px);\n      cursor: pointer;\n      transition: transform 0.1s ease, box-shadow 0.1s ease;\n      position: relative;\n      font-size: var(--cell-font-size, 11px);\n      padding: var(--cell-padding, 2px);\n      box-sizing: border-box;\n    }\n\n    /* Only apply hover effects on devices with a true hover-capable pointer.\n       On touch devices, :hover is sticky after tap and can cause the cell to\n       render on top of the more-info popup due to the transform stacking context. */\n    @media (hover: hover) {\n      .cell:hover:not(.no-data) {\n        transform: scale(1.08);\n        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);\n        z-index: 10;\n      }\n\n      .cell.no-data:hover {\n        transform: none;\n        box-shadow: none;\n      }\n    }\n\n    .cell:focus {\n      outline: 2px solid var(--primary-color);\n      outline-offset: 2px;\n    }\n\n    .cell.no-data {\n      background-color: var(--disabled-color, #f0f0f0);\n      cursor: default;\n      opacity: 0.4;\n    }\n\n    .cell.partial {\n      border: 2px dashed currentColor;\n      opacity: 0.9;\n    }\n\n    .speed {\n      font-weight: bold;\n      line-height: 1.1;\n    }\n\n    .direction {\n      font-size: 10px;\n      line-height: 1;\n      margin-top: 2px;\n    }\n\n    /* Footer with statistics */\n    .footer {\n      display: flex;\n      flex-direction: column;\n      gap: 8px;\n      padding: 12px 16px;\n      border-top: 1px solid var(--divider-color);\n      background: var(--card-background-color);\n      font-size: 13px;\n      color: var(--secondary-text-color);\n    }\n\n    .footer-stats {\n      display: flex;\n      justify-content: space-around;\n      align-items: center;\n    }\n\n    .footer-stats span {\n      font-weight: 500;\n    }\n\n    .entity-name {\n      text-align: center;\n      font-size: 11px;\n      color: var(--secondary-text-color);\n      opacity: 0.8;\n    }\n\n    /* Loading state */\n    .loading {\n      text-align: center;\n      padding: 32px;\n      color: var(--secondary-text-color);\n    }\n\n    .loading-spinner {\n      display: inline-block;\n      width: 24px;\n      height: 24px;\n      border: 3px solid var(--divider-color);\n      border-top-color: var(--primary-color);\n      border-radius: 50%;\n      animation: spin 1s linear infinite;\n    }\n\n    @keyframes spin {\n      to { transform: rotate(360deg); }\n    }\n\n    /* Error message */\n    .error-message {\n      display: flex;\n      align-items: flex-start;\n      gap: 12px;\n      padding: 16px;\n      margin: 16px;\n      background: rgba(244, 67, 54, 0.1);\n      color: var(--error-color, #f44336);\n      border-radius: 4px;\n      border-left: 4px solid var(--error-color, #f44336);\n    }\n\n    .error-icon {\n      font-size: 20px;\n      flex-shrink: 0;\n    }\n\n    .error-text {\n      flex: 1;\n    }\n\n    .error-details {\n      font-size: 11px;\n      margin-top: 4px;\n      opacity: 0.8;\n    }\n\n    /* Tooltip */\n    .tooltip {\n      position: absolute;\n      z-index: 1000;\n      background: var(--card-background-color, white);\n      border: 1px solid var(--divider-color);\n      border-radius: 4px;\n      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);\n      padding: 8px 12px;\n      font-size: 12px;\n      pointer-events: none;\n      max-width: 250px;\n      line-height: 1.4;\n    }\n\n    .tooltip div {\n      margin: 2px 0;\n    }\n\n    .tooltip strong {\n      color: var(--primary-text-color);\n    }\n\n    /* Legend bar */\n    .legend {\n      padding: 8px 16px 12px;\n      border-top: 1px solid var(--divider-color);\n    }\n\n    .legend-bar {\n      height: 12px;\n      border-radius: 3px;\n      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);\n    }\n\n    .legend-labels {\n      position: relative;\n      height: 14px;\n      margin-top: 4px;\n      font-size: 9px;\n      color: var(--secondary-text-color);\n    }\n\n    .legend-labels span {\n      position: absolute;\n      transform: translateX(-50%);\n      white-space: nowrap;\n    }\n\n    /* Compact header: reduces padding, title size, and nav arrow size */\n    .compact-header .card-header {\n      padding: 4px 8px;\n      gap: 4px;\n    }\n\n    .compact-header .title {\n      font-size: 14px;\n    }\n\n    .compact-header .nav-btn {\n      width: 20px;\n      height: 20px;\n      font-size: 12px;\n    }\n\n    .compact-header .nav-btn-current {\n      padding: 2px 6px;\n      font-size: 11px;\n    }\n\n    .compact-header .month-header {\n      font-size: 13px;\n      margin-bottom: 4px;\n      padding: 2px 0;\n    }\n\n    .compact-header .footer {\n      padding: 6px 8px;\n      gap: 4px;\n      font-size: 11px;\n    }\n\n    /* Responsive adjustments */\n    @media (max-width: 600px) {\n      .data-grid {\n        grid-auto-rows: calc(var(--cell-height, 36px) * 0.83);\n      }\n\n      .time-label {\n        height: calc(var(--cell-height, 36px) * 0.83);\n        font-size: calc(var(--cell-font-size, 11px) * 0.91);\n      }\n\n      .cell {\n        font-size: calc(var(--cell-font-size, 11px) * 0.91);\n      }\n\n      .direction {\n        display: none;\n      }\n\n      .date-header {\n        font-size: 11px;\n      }\n    }\n\n    @media (max-width: 400px) {\n      .card-header {\n        flex-direction: column;\n        align-items: stretch;\n      }\n\n      .nav-controls {\n        justify-content: center;\n      }\n    }\n\n    /* Accessibility: High contrast mode support */\n    @media (prefers-contrast: high) {\n      .cell:not(.no-data) {\n        border: 1px solid currentColor;\n      }\n    }\n\n    /* Accessibility: Reduced motion support */\n    @media (prefers-reduced-motion: reduce) {\n      .cell,\n      .nav-btn,\n      .loading-spinner {\n        transition: none;\n        animation: none;\n      }\n    }\n  ",t}()),this._content=document.createElement("ha-card"),this.shadowRoot.appendChild(this._content),this._content.addEventListener("click",this._handleClick.bind(this)),this._responseCache=new Map}setConfig(t){if(!t.entity)throw new Error("'entity' is required (wind speed sensor)");const e=[1,2,3,4,6,8,12,24];if(t.time_interval&&!e.includes(t.time_interval))throw new Error(`time_interval must be one of: ${e.join(", ")}`);if(t.days&&(t.days<1||t.days>30))throw new Error("days must be between 1 and 30");const n=["rgb","gamma","hsl","lab"];if(t.color_interpolation&&!n.includes(t.color_interpolation))throw new Error(`color_interpolation must be one of: ${n.join(", ")}`);const i=["auto","history","statistics"];if(t.data_source&&!i.includes(t.data_source))throw new Error(`data_source must be one of: ${i.join(", ")}`);const a=["max","mean","min"];if(t.statistic_type&&!a.includes(t.statistic_type))throw new Error(`statistic_type must be one of: ${a.join(", ")}`);if(void 0!==t.cell_height){const e="number"==typeof t.cell_height?t.cell_height:parseFloat(t.cell_height);if(isNaN(e)||e<10||e>200)throw new Error("cell_height must be between 10 and 200 pixels")}if(void 0!==t.cell_padding){const e="number"==typeof t.cell_padding?t.cell_padding:parseFloat(t.cell_padding);if(isNaN(e)||e<0||e>20)throw new Error("cell_padding must be between 0 and 20 pixels")}if(void 0!==t.cell_gap){const e="number"==typeof t.cell_gap?t.cell_gap:parseFloat(t.cell_gap);if(isNaN(e)||e<0||e>20)throw new Error("cell_gap must be between 0 and 20 pixels")}if(void 0!==t.cell_font_size){const e="number"==typeof t.cell_font_size?t.cell_font_size:parseFloat(t.cell_font_size);if(isNaN(e)||e<6||e>24)throw new Error("cell_font_size must be between 6 and 24 pixels")}if(void 0!==t.cell_width&&"string"!=typeof t.cell_width){const e=parseFloat(t.cell_width);if(isNaN(e)||e<10||e>500)throw new Error("cell_width as number must be between 10 and 500 pixels")}const r=t.color_thresholds&&t.color_thresholds.length>0;this._config={entity:t.entity,direction_entity:t.direction_entity||null,title:t.title||"Wind Speed History",days:t.days||7,time_interval:t.time_interval||2,time_format:t.time_format||"24",unit:t.unit||null,_hasCustomThresholds:r,_thresholdsInitialized:!!t.unit,color_thresholds:r?t.color_thresholds:o(t.unit).slice(),show_direction:!1!==t.show_direction,direction_format:t.direction_format||"arrow",refresh_interval:t.refresh_interval||300,click_action:t.click_action||"more-info",show_entity_name:t.show_entity_name||!1,cell_height:void 0!==t.cell_height?t.cell_height:36,cell_width:void 0!==t.cell_width?t.cell_width:"1fr",cell_padding:void 0!==t.cell_padding?t.cell_padding:2,cell_gap:void 0!==t.cell_gap?t.cell_gap:2,cell_font_size:void 0!==t.cell_font_size?t.cell_font_size:11,compact:t.compact||!1,compact_header:t.compact_header||!1,rounded_corners:!1!==t.rounded_corners,show_legend:t.show_legend||!1,interpolate_colors:t.interpolate_colors||!1,color_interpolation:t.color_interpolation||"hsl",data_source:t.data_source||"auto",statistic_type:t.statistic_type||"max"},this._config.color_thresholds=[...this._config.color_thresholds].sort((t,e)=>t.value-e.value),this._hass&&this._clearAndSetInterval()}static getConfigElement(){return document.createElement("windspeed-heatmap-card-editor")}static getStubConfig(t){const e=Object.keys(t.states).filter(e=>{if(!e.startsWith("sensor."))return!1;const n=t.states[e],i=n?.attributes?.device_class,o=n?.attributes?.unit_of_measurement?.toLowerCase()||"";return"wind_speed"===i||o.includes("mph")||o.includes("km/h")||o.includes("m/s")||o.includes("knot")||o.includes("kn")||o.includes("kt")});let n=null;if(e.length>0){const i=t.states[e[0]];n=i?.attributes?.unit_of_measurement}return{entity:e.length>0?e[0]:"",title:"Wind Speed History",days:7,time_interval:2,color_thresholds:o(n).slice()}}set hass(t){if(this._hass=t,this._config&&this.isConnected){if(!this._config._hasCustomThresholds&&!this._config._thresholdsInitialized){const t=this._getUnit();t&&(this._config.color_thresholds=o(t).slice(),this._config._thresholdsInitialized=!0,console.log(`Windspeed Heatmap: Auto-selected ${t} thresholds`))}0===this._viewOffset&&this._isDataStale()&&this._fetchHistoryData()}}getCardSize(){const t=this._processedData?this._processedData.rows.length:12,e=this._getEffectiveSizing(),n=parseFloat(e.cellHeight)||36;return Math.ceil((t*n+100)/50)}connectedCallback(){this._config&&this._hass&&this._clearAndSetInterval()}disconnectedCallback(){this._interval&&(clearInterval(this._interval),this._interval=null)}_clearAndSetInterval(){this._interval&&(clearInterval(this._interval),this._interval=null),this._fetchHistoryData();const t=1e3*this._config.refresh_interval;this._interval=setInterval(()=>{0===this._viewOffset&&this._fetchHistoryData()},t)}_isDataStale(){if(!this._historyData||!this._lastFetch)return!0;return Date.now()-this._lastFetch>1e3*this._config.refresh_interval}async fetchWithCache(t,e=3e4,n=3e5){const i=Date.now(),o=`${t}_offset${this._viewOffset}`,a=this._responseCache.get(o);if(a&&a.expiry>i)return console.log("Windspeed Heatmap: Using cached data for:",o),a.data;const r=this._hass.callApi("GET",t),s=await Promise.race([r,new Promise((t,n)=>setTimeout(()=>n(new Error(`Request timeout after ${e}ms`)),e))]);return this._responseCache.set(o,{data:s,expiry:i+n}),s}_getDataSource(){const t=this._config.data_source;return"history"===t?"history":"statistics"===t||this._viewOffset<0?"statistics":"history"}async _fetchHistoryData(){if(this._isLoading)return void console.log("Windspeed Heatmap: Already loading, skipping duplicate fetch");this._isLoading=!0,this._error=null,this._render();const t=this._getDataSource();console.log(`Windspeed Heatmap: Starting data fetch using ${t}...`);try{const e=new Date;let n,i=null;if(0===this._viewOffset){n=new Date(e);const t=this._config.time_interval,o=f(e);i=`${o}_${m(e.getHours(),t)}`}else n=new Date(e),n.setDate(n.getDate()+this._viewOffset),n.setHours(23,59,59,999);const o=new Date(n);o.setDate(o.getDate()-this._config.days+1),o.setHours(0,0,0,0),console.log(`Windspeed Heatmap: Fetching from ${o.toLocaleString()} to ${n.toLocaleString()}`),i&&console.log(`Windspeed Heatmap: Current partial bucket: ${i}`),"statistics"===t?await this._fetchStatisticsData(o,n,i):await this._fetchHistoryApiData(o,n,i),this._lastFetch=Date.now();const a=Date.now();this._processData();const r=((Date.now()-a)/1e3).toFixed(2);console.log(`Windspeed Heatmap: Processed data in ${r}s`),this._isLoading=!1,console.log("Windspeed Heatmap: Starting render..."),this._render(),console.log("Windspeed Heatmap: Render complete")}catch(t){console.error("Windspeed Heatmap: Fetch error:",t),this._isLoading=!1,this._error={message:"Failed to fetch wind speed history",details:t.message},this._render()}}async _fetchHistoryApiData(t,e,n=null){const i=t.toISOString(),o=e.toISOString();console.log(`Windspeed Heatmap: Using history API - Start: ${i}, End: ${o}`);const a=`history/period/${i}?filter_entity_id=${this._config.entity}&end_time=${o}&minimal_response&no_attributes`,r=[this._hass.callApi("GET",a)];if(this._config.direction_entity&&this._config.show_direction){const t=`history/period/${i}?filter_entity_id=${this._config.direction_entity}&end_time=${o}&minimal_response&no_attributes`;r.push(this._hass.callApi("GET",t))}const s=Date.now(),l=await((t,e=3e4)=>Promise.race([t,new Promise((t,n)=>setTimeout(()=>n(new Error("Request timeout after 30 seconds")),e))]))(Promise.all(r)),c=((Date.now()-s)/1e3).toFixed(1);console.log(`Windspeed Heatmap: Received ${l[0]?.[0]?.length||0} speed points, ${l[1]?.[0]?.length||0} direction points in ${c}s`),this._historyData={speed:l[0]?.[0]||[],direction:l[1]&&l[1][0]||[],startTime:t,endTime:e,partialBucketKey:n,dataSource:"history"}}async _fetchStatisticsData(t,e,n=null){const i=t.toISOString(),o=e.toISOString();console.log(`Windspeed Heatmap: Using statistics API - Start: ${i}, End: ${o}`);const a=[this._config.entity];this._config.direction_entity&&this._config.show_direction&&a.push(this._config.direction_entity);const r=Date.now(),s=await((t,e=3e4)=>Promise.race([t,new Promise((t,n)=>setTimeout(()=>n(new Error("Request timeout after 30 seconds")),e))]))(this._hass.callWS({type:"recorder/statistics_during_period",start_time:i,end_time:o,statistic_ids:a,period:"hour"})),l=((Date.now()-r)/1e3).toFixed(1),c=s[this._config.entity]||[],d=this._config.direction_entity&&s[this._config.direction_entity]||[];console.log(`Windspeed Heatmap: Received ${c.length} speed stats, ${d.length} direction stats in ${l}s`);const h=this._config.statistic_type,p=c.map(t=>({last_changed:t.start,state:String(t[h]??t.mean??"")})).filter(t=>""!==t.state&&"null"!==t.state),g=d.map(t=>({last_changed:t.start,state:String(t.mean??"")})).filter(t=>""!==t.state&&"null"!==t.state);this._historyData={speed:p,direction:g,startTime:t,endTime:e,partialBucketKey:n,dataSource:"statistics"}}_processData(){if(!this._historyData)return void(this._processedData=null);const{speed:t,direction:e,startTime:n,partialBucketKey:i}=this._historyData,o=this._config.time_interval,a=24/o,r={};t.forEach(t=>{const e=new Date(t.last_changed||t.last_updated),n=`${f(e)}_${m(e.getHours(),o)}`;r[n]||(r[n]={maxSpeed:null,directions:[]});const i=parseFloat(t.state);isNaN(i)||(null===r[n].maxSpeed||i>r[n].maxSpeed)&&(r[n].maxSpeed=i)}),e&&e.length>0&&e.forEach(t=>{const e=new Date(t.last_changed||t.last_updated),n=`${f(e)}_${m(e.getHours(),o)}`;if(r[n]){const e=parseFloat(t.state);isNaN(e)||r[n].directions.push(e)}}),Object.keys(r).forEach(t=>{const e=r[t];e.avgDirection=e.directions.length>0?function(t){if(0===t.length)return null;let e=0,n=0;t.forEach(t=>{const i=t*Math.PI/180;e+=Math.sin(i),n+=Math.cos(i)});let i=180*Math.atan2(e/t.length,n/t.length)/Math.PI;return i<0&&(i+=360),Math.round(i)}(e.directions):null});const s=[];for(let t=0;t<this._config.days;t++){const e=new Date(n);e.setDate(e.getDate()+t),s.push(e)}const l=[];let c=[];for(let t=0;t<a;t++){const e=t*o,n={hour:e,label:p(e,this._config.time_format),cells:s.map(t=>{const n=`${f(t)}_${e}`,o=r[n],a={date:t,speed:o?.maxSpeed??null,direction:o?.avgDirection??null,hasData:o&&null!==o.maxSpeed,isPartial:i&&n===i};return null!==a.speed&&c.push(a.speed),a})};l.push(n)}const d={min:c.length>0?Math.min(...c):0,max:c.length>0?Math.max(...c):0,avg:c.length>0?c.reduce((t,e)=>t+e,0)/c.length:0};this._processedData={rows:l,dates:s,stats:d}}_render(){if(this._config&&this._hass&&(this._content.innerHTML=`\n      <div class="card-header">\n        <span class="title">${h(this._config.title)}</span>\n        ${this._renderNavControls()}\n      </div>\n\n      ${this._error?this._renderError():""}\n      ${this._isLoading?this._renderLoading():""}\n      ${this._processedData&&!this._error?this._renderGrid():""}\n      ${this._processedData&&!this._error&&this._config.show_legend?this._renderLegend():""}\n      ${this._processedData&&!this._error?this._renderFooter():""}\n    `,this._content.classList.toggle("compact-header",!!this._config.compact_header),this._processedData)){this._content.style.setProperty("--days-count",this._config.days);const t=this._getEffectiveSizing();this._content.style.setProperty("--cell-height",t.cellHeight),this._content.style.setProperty("--cell-width",t.cellWidth),this._content.style.setProperty("--cell-padding",t.cellPadding),this._content.style.setProperty("--cell-gap",t.cellGap),this._content.style.setProperty("--cell-font-size",t.cellFontSize),this._content.style.setProperty("--cell-border-radius",this._config.rounded_corners?"4px":"0")}}_renderNavControls(){const t=this._viewOffset<0,e=this._viewOffset<0;return`\n      <div class="nav-controls">\n        <button class="nav-btn" data-direction="back" aria-label="Previous period">&#8592;</button>\n        <span class="date-range">${this._getDateRangeLabel()}</span>\n        <button class="nav-btn" data-direction="forward"\n                ${t?"":"disabled"}\n                aria-label="Next period">&#8594;</button>\n        <button class="nav-btn-current ${e?"":"hidden"}"\n                data-direction="current"\n                aria-label="Jump to current"\n                ${e?"":'aria-hidden="true"'}>Current</button>\n      </div>\n    `}_getDateRangeLabel(){if(!this._processedData)return"";const{dates:t}=this._processedData,e=t[0],n=t[t.length-1],i={month:"short",day:"numeric"};return`${e.toLocaleDateString(void 0,i)} - ${n.toLocaleDateString(void 0,i)}`}_renderLoading(){return'\n      <div class="loading">\n        <div class="loading-spinner"></div>\n        <div style="margin-top: 8px;">Loading wind data...</div>\n      </div>\n    '}_renderError(){return`\n      <div class="error-message">\n        <div class="error-icon">!</div>\n        <div class="error-text">\n          <strong>${h(this._error.message)}</strong>\n          <div class="error-details">${h(this._error.details)}</div>\n        </div>\n      </div>\n    `}_renderGrid(){const{rows:t,dates:e}=this._processedData,n=e[0].toLocaleDateString(void 0,{month:"long",year:"numeric"}),i=e.map(t=>`<div class="date-header">${t.getDate()}</div>`).join("");return`\n      <div class="heatmap-grid">\n        <div class="month-header">${n}</div>\n        <div class="grid-wrapper">\n          <div class="time-labels">\n            ${t.map(t=>`<div class="time-label">${t.label}</div>`).join("")}\n          </div>\n          <div class="data-grid-container">\n            <div class="date-headers">\n              ${i}\n            </div>\n            <div class="data-grid">\n              ${t.map(t=>t.cells.map(t=>this._renderCell(t)).join("")).join("")}\n            </div>\n          </div>\n        </div>\n      </div>\n    `}_renderCell(t){if(!t.hasData)return'<div class="cell no-data"><span class="speed">-</span></div>';const e=function(t,e,n=!1,i="hsl"){if(null==t)return"var(--disabled-color, #f0f0f0)";if(!n){let n=e[0].color;for(let i=0;i<e.length&&t>=e[i].value;i++)n=e[i].color;return n}if(t<=e[0].value)return e[0].color;if(t>=e[e.length-1].value)return e[e.length-1].color;for(let n=0;n<e.length-1;n++)if(t>=e[n].value&&t<e[n+1].value){const o=(t-e[n].value)/(e[n+1].value-e[n].value);return d(e[n].color,e[n+1].color,o,i)}return e[e.length-1].color}(t.speed,this._config.color_thresholds,this._config.interpolate_colors,this._config.color_interpolation),n=function(t){if(t.startsWith("var("))return"var(--primary-text-color)";if(t.startsWith("rgba(")){const e=t.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);if(e)return(.299*parseInt(e[1],10)+.587*parseInt(e[2],10)+.114*parseInt(e[3],10))/255>.5?"#000000":"#ffffff"}if(t.startsWith("rgb(")){const e=t.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);if(e)return(.299*parseInt(e[1],10)+.587*parseInt(e[2],10)+.114*parseInt(e[3],10))/255>.5?"#000000":"#ffffff"}const e=t.replace("#","");if(6===e.length)return(.299*parseInt(e.substr(0,2),16)+.587*parseInt(e.substr(2,2),16)+.114*parseInt(e.substr(4,2),16))/255>.5?"#000000":"#ffffff";return"var(--primary-text-color)"}(e),i=this._config.show_direction?u(t.direction,this._config.direction_format):"",o=t.isPartial?"*":"",a=t.isPartial?" (in progress)":"";return`\n      <div class="cell${t.isPartial?" partial":""}"\n           style="background-color: ${e}; color: ${n}"\n           data-speed="${t.speed}"\n           data-direction="${t.direction||""}"\n           data-date="${t.date.toISOString()}"\n           data-partial="${t.isPartial?"true":"false"}"\n           tabindex="0"\n           role="button"\n           aria-label="Wind speed ${t.speed.toFixed(1)}${a}">\n        <span class="speed">${t.speed.toFixed(1)}${o}</span>\n        ${i?`<span class="direction">${i}</span>`:""}\n      </div>\n    `}_renderFooter(){const{stats:t}=this._processedData,e=this._getUnit();let n="";if(this._config.show_entity_name){const t=this._hass?.states[this._config.entity];n=`<div class="entity-name">${h(t?.attributes?.friendly_name||this._config.entity)}</div>`}return`\n      <div class="footer">\n        <div class="footer-stats">\n          <span>Min: ${t.min.toFixed(1)} ${e}</span>\n          <span>Max: ${t.max.toFixed(1)} ${e}</span>\n          <span>Avg: ${t.avg.toFixed(1)} ${e}</span>\n        </div>\n        ${n}\n      </div>\n    `}_renderLegend(){const t=this._config.color_thresholds,e=t[t.length-1].value,n=t.map(t=>{const n=Math.min(t.value/Math.max(e,75)*100,100);return`${t.color} ${n.toFixed(0)}%`}).join(", "),i=Math.max(e,75);let o=-1/0;return`\n      <div class="legend">\n        <div class="legend-bar" style="background: linear-gradient(to right, ${n});"></div>\n        <div class="legend-labels" style="position:relative;">\n          ${t.map((e,n)=>{const a=Math.min(e.value/i*100,100);if(a-o<8)return"";o=a;const r=n===t.length-1;return`<span style="left:${a.toFixed(1)}%;">${e.value}${r?"+":""}</span>`}).join("")}\n        </div>\n      </div>\n    `}_getUnit(){if(this._config.unit)return this._config.unit;const t=this._hass?.states[this._config.entity];return t?.attributes?.unit_of_measurement?t.attributes.unit_of_measurement:"mph"}_handleClick(t){const e=t.target.closest(".nav-btn, .nav-btn-current");if(e&&!e.disabled){const t=e.dataset.direction;return void this._handleNavigation(t)}const n=t.target.closest(".cell");n&&!n.classList.contains("no-data")&&this._handleCellClick(n)}_handleNavigation(t){"back"===t?this._viewOffset-=this._config.days:"forward"===t?(this._viewOffset+=this._config.days,this._viewOffset>0&&(this._viewOffset=0)):"current"===t&&(this._viewOffset=0),this._fetchHistoryData()}_handleCellClick(t){switch(this._config.click_action){case"more-info":this._showMoreInfo();break;case"tooltip":this._showTooltip(t)}}_showMoreInfo(){this.dispatchEvent(new CustomEvent("hass-more-info",{bubbles:!0,composed:!0,detail:{entityId:this._config.entity}}))}_showTooltip(t){const e=parseFloat(t.dataset.speed),n=t.dataset.direction,i=new Date(t.dataset.date),o="true"===t.dataset.partial,a=this.shadowRoot.querySelector(".tooltip");a&&a.remove();const r=document.createElement("div");r.className="tooltip";const s=i.toLocaleString(void 0,{month:"short",day:"numeric"}),l=this._getUnit(),c=n?` ${g(n)} (${Math.round(n)}deg)`:"",d=o?"<div><em>(in progress)</em></div>":"";r.innerHTML=`\n      <div><strong>${s}</strong></div>\n      <div>Speed: ${e.toFixed(1)} ${l}${c}</div>\n      ${d}\n    `;const h=t.getBoundingClientRect(),p=this._content.getBoundingClientRect();r.style.left=h.left-p.left+h.width/2+"px",r.style.top=h.bottom-p.top+4+"px",r.style.transform="translateX(-50%)",this._content.appendChild(r),setTimeout(()=>{r.parentElement&&r.remove()},3e3)}_getEffectiveSizing(){return this._config.compact?{cellHeight:"24px",cellWidth:"1fr",cellPadding:"1px",cellGap:"1px",cellFontSize:"9px"}:{cellHeight:_(this._config.cell_height,"36px"),cellWidth:_(this._config.cell_width,"1fr"),cellPadding:_(this._config.cell_padding,"2px"),cellGap:_(this._config.cell_gap,"2px"),cellFontSize:_(this._config.cell_font_size,"11px")}}}class b extends HTMLElement{constructor(){super(),this._config={},this._hass=null,this.content=null}set hass(t){this._hass=t,this.content||this._buildEditor()}async setConfig(t){this._config={...t||{}};const e=await window.loadCardHelpers();if(!customElements.get("ha-entity-picker")){const t=await e.createCardElement({type:"entities",entities:[]});await t.constructor.getConfigElement()}this._config={entity:"",direction_entity:"",title:"Wind Speed History",days:7,time_interval:2,time_format:"24",unit:"",show_direction:!0,direction_format:"arrow",refresh_interval:300,click_action:"more-info",show_entity_name:!1,cell_height:36,cell_width:"1fr",cell_padding:2,cell_gap:2,cell_font_size:11,compact:!1,compact_header:!1,rounded_corners:!0,show_legend:!1,interpolate_colors:!1,color_interpolation:"hsl",color_thresholds:[],data_source:"auto",statistic_type:"max",...this._config},this.content&&this._updateValues()}getConfig(){return{...this._config}}_buildEditor(){this.content=document.createElement("div"),this.content.style.display="grid",this.content.style.gridGap="8px",this.content.style.padding="8px",this.appendChild(this.content),this.container_threshold={},this.fields={};[{type:"entity",key:"entity",label:"Wind Speed Entity",required:!0},{type:"entity",key:"direction_entity",label:"Wind Direction Entity"},{type:"text",key:"title",label:"Title"},{type:"number",key:"days",label:"Days",min:1,max:30},{type:"number",key:"time_interval",label:"Time Interval (hours)",min:1,max:24},{type:"select",key:"time_format",label:"Time Format",options:{24:"24h",12:"12h"}},{type:"select",key:"unit",label:"Unit",options:{"":"Auto-detect",mph:"mph","km/h":"km/h","m/s":"m/s",kn:"knots"}},{type:"select",key:"data_source",label:"Data Source",options:{auto:"Auto (statistics for past, history for current)",history:"History only (limited by purge_keep_days)",statistics:"Statistics only (long-term hourly data)"}},{type:"select",key:"statistic_type",label:"Statistic Type",options:{max:"Maximum",mean:"Average",min:"Minimum"}},{type:"switch",key:"show_direction",label:"Show Direction"},{type:"select",key:"direction_format",label:"Direction Format",options:{arrow:"Arrow",cardinal:"Cardinal",degrees:"Degrees"}},{type:"number",key:"refresh_interval",label:"Refresh Interval (s)",min:10,max:3600},{type:"select",key:"click_action",label:"Click Action",options:{none:"None","more-info":"More Info",tooltip:"Tooltip"}},{type:"switch",key:"show_entity_name",label:"Show Entity Name"},{type:"switch",key:"show_legend",label:"Show Legend"},{type:"number",key:"cell_height",label:"Cell Height",min:10,max:200},{type:"text",key:"cell_width",label:"Cell Width (px or fr)"},{type:"number",key:"cell_padding",label:"Cell Padding",min:0,max:50},{type:"number",key:"cell_gap",label:"Cell Gap",min:0,max:50},{type:"number",key:"cell_font_size",label:"Cell Font Size",min:6,max:32},{type:"switch",key:"compact",label:"Compact Mode"},{type:"switch",key:"compact_header",label:"Compact Header"},{type:"switch",key:"rounded_corners",label:"Rounded Corners"},{type:"switch",key:"interpolate_colors",label:"Interpolate Colors"},{type:"select",key:"color_interpolation",label:"Color Interpolation",options:{rgb:"RGB",gamma:"Gamma RGB",hsl:"HSL",lab:"LAB"}},{type:"thresholds",key:"color_thresholds",label:"Colors"}].forEach(t=>this._createField(t)),this._updateValues()}_createThresholdEditor(){const t=(t,e)=>{const n=document.createElement("div");n.style.display="flex",n.style.alignItems="center",n.style.gap="8px";const i=document.createElement("ha-textfield");i.type="number",i.value=t.value,i.addEventListener("change",t=>{t.stopPropagation();const n=[...this._config.color_thresholds],i={...this._config.color_thresholds[e]};i.value=Number(t.target.value),n[e]=i,this._onFieldChange("color_thresholds",n),this._refreshThresholdEditor()});const o=document.createElement("input");o.type="color",o.value=function(t){if(t.startsWith("#"))return t;const e=t.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);if(e)return`#${parseInt(e[1],10).toString(16).padStart(2,"0")}${parseInt(e[2],10).toString(16).padStart(2,"0")}${parseInt(e[3],10).toString(16).padStart(2,"0")}`;return"#ffffff"}(t.color),o.addEventListener("change",t=>{t.stopPropagation();const n=[...this._config.color_thresholds],i={...this._config.color_thresholds[e]};i.color=t.target.value,n[e]=i,this._onFieldChange("color_thresholds",n),this._refreshThresholdEditor()});const a=document.createElement("button");a.textContent="X",a.style.cursor="pointer",a.addEventListener("click",t=>{t.stopPropagation();const n=[...this._config.color_thresholds];n.splice(e,1),this._onFieldChange("color_thresholds",n),this._refreshThresholdEditor()}),n.appendChild(i),n.appendChild(o),n.appendChild(a),this.container_threshold.appendChild(n)};this._config.color_thresholds||(this._config.color_thresholds=[]),this._config.color_thresholds.forEach((e,n)=>t(e,n))}_refreshThresholdEditor(){for(;this.container_threshold.firstChild;)this.container_threshold.removeChild(this.container_threshold.firstChild);this._createThresholdEditor()}_updateValues(){if(this._config)for(const t in this.fields){const e=this.fields[t].input;"checkbox"===this.fields[t].type||"switch"===this.fields[t].type?e.checked=!!this._config[t]:"thresholds"===this.fields[t].type?this._refreshThresholdEditor():e.value=void 0!==this._config[t]?this._config[t]:""}}_createField({type:t,key:e,label:n,min:i,max:o,options:a,required:r}){const s=document.createElement("div");let l;if(s.style.display="flex",s.style.flexDirection="column",s.style.marginBottom="8px","switch"===t){s.style.flexDirection="row",s.style.alignItems="center",s.style.gap="8px",l=document.createElement("ha-switch");const t=document.createElement("label");t.textContent=n,s.appendChild(l),s.appendChild(t),l.addEventListener("change",t=>{t.stopPropagation(),this._onFieldChange(e,l.checked)})}else if("thresholds"===t){const t=document.createElement("label");t.textContent=n,s.appendChild(t);const i=document.createElement("div");i.style.display="grid",i.style.gridGap="8px",s.appendChild(i),this.container_threshold=i;const o=document.createElement("button");o.textContent="Add Threshold",o.style.marginTop="8px",o.addEventListener("click",t=>{t.stopPropagation();const n=[...this._config.color_thresholds];n.push({value:0,color:"#ffffff"}),this._onFieldChange(e,n)}),s.appendChild(o)}else{const c=document.createElement("label");if(c.textContent=n,s.appendChild(c),"entity"===t)l=document.createElement("ha-entity-picker"),l.setAttribute("allow-custom-entity",""),l.hass=this._hass,l.addEventListener("value-changed",t=>{t.stopPropagation(),this._onFieldChange(e,t.detail.value)});else if("number"===t||"text"===t)l=document.createElement("ha-textfield"),l.type=t,void 0!==i&&(l.min=i),void 0!==o&&(l.max=o),r&&(l.required=!0),l.addEventListener("change",n=>{n.stopPropagation();const i="number"===t?Number(l.value):l.value;this._onFieldChange(e,i)});else if("select"===t){l=document.createElement("ha-select");for(const t in a){const e=document.createElement("mwc-list-item");e.value=t,e.innerText=a[t],l.appendChild(e)}l.addEventListener("selected",t=>{t.stopPropagation(),this._onFieldChange(e,t.target.value)}),l.addEventListener("closed",t=>{t.stopPropagation()})}s.appendChild(l)}this.fields[e]={},this.fields[e].input=l,this.fields[e].type=t,this.content.appendChild(s)}_onFieldChange(t,e){const n={...this._config,[t]:e};this._config=n,this.dispatchEvent(new CustomEvent("config-changed",{detail:{config:n},bubbles:!0,composed:!0}))}disconnectedCallback(){this.fields={},this.container_threshold=null}}customElements.define("windspeed-heatmap-card-editor",b),customElements.define("windspeed-heatmap-card",v),window.customCards=window.customCards||[],window.customCards.push({type:"windspeed-heatmap-card",name:"Windspeed Heatmap Card",description:"Display wind speed history as a color-coded heatmap using Beaufort scale colors"}),console.info("%c WINDSPEED-HEATMAP-CARD %c v0.6.2 ","color: lightblue; font-weight: bold; background: black","color: white; font-weight: bold; background: dimgray");
-//# sourceMappingURL=windspeed-heatmap-card.js.map
+/* Last modified: 27-Feb-2026 23:57 */
+// Default color thresholds based on Beaufort scale for different units
+
+// Default color thresholds based on Beaufort scale (MPH)
+const DEFAULT_THRESHOLDS_MPH = [
+  { value: 0,  color: 'rgba(187, 222, 251, 1)' },  // Force 0: Calm (< 1 mph)
+  { value: 1,  color: 'rgba(144, 202, 249, 1)' },  // Force 1: Light Air (1-3 mph)
+  { value: 4,  color: 'rgba(100, 181, 246, 1)' },  // Force 2: Light Breeze (4-7 mph)
+  { value: 8,  color: 'rgba(66, 165, 245, 1)' },   // Force 3: Gentle Breeze (8-12 mph)
+  { value: 13, color: 'rgba(30, 136, 229, 1)' },   // Force 4: Moderate Breeze (13-18 mph)
+  { value: 19, color: 'rgba(192, 202, 81, 1)' },   // Force 5: Fresh Breeze (19-24 mph)
+  { value: 25, color: 'rgba(225, 213, 60, 1)' },   // Force 6: Strong Breeze (25-31 mph)
+  { value: 32, color: 'rgba(255, 213, 79, 1)' },   // Force 7: Near Gale (32-38 mph)
+  { value: 39, color: 'rgba(255, 183, 77, 1)' },   // Force 8: Gale (39-46 mph)
+  { value: 47, color: 'rgba(239, 108, 0, 1)' },    // Force 9: Strong Gale (47-54 mph)
+  { value: 55, color: 'rgba(244, 81, 30, 1)' },    // Force 10: Storm (55-63 mph)
+  { value: 64, color: 'rgba(229, 57, 53, 1)' },    // Force 11: Violent Storm (64-72 mph)
+  { value: 73, color: 'rgba(183, 28, 28, 1)' }     // Force 12: Hurricane Force (>= 73 mph)
+];
+
+// Default color thresholds based on Beaufort scale (m/s - meters per second)
+const DEFAULT_THRESHOLDS_MS = [
+  { value: 0,    color: 'rgba(187, 222, 251, 1)' },  // Force 0: Calm (< 0.3 m/s)
+  { value: 0.3,  color: 'rgba(144, 202, 249, 1)' },  // Force 1: Light Air (0.3-1.5 m/s)
+  { value: 1.6,  color: 'rgba(100, 181, 246, 1)' },  // Force 2: Light Breeze (1.6-3.3 m/s)
+  { value: 3.4,  color: 'rgba(66, 165, 245, 1)' },   // Force 3: Gentle Breeze (3.4-5.4 m/s)
+  { value: 5.5,  color: 'rgba(30, 136, 229, 1)' },   // Force 4: Moderate Breeze (5.5-7.9 m/s)
+  { value: 8.0,  color: 'rgba(192, 202, 81, 1)' },   // Force 5: Fresh Breeze (8.0-10.7 m/s)
+  { value: 10.8, color: 'rgba(225, 213, 60, 1)' },   // Force 6: Strong Breeze (10.8-13.8 m/s)
+  { value: 13.9, color: 'rgba(255, 213, 79, 1)' },   // Force 7: Near Gale (13.9-17.1 m/s)
+  { value: 17.2, color: 'rgba(255, 183, 77, 1)' },   // Force 8: Gale (17.2-20.7 m/s)
+  { value: 20.8, color: 'rgba(239, 108, 0, 1)' },    // Force 9: Strong Gale (20.8-24.4 m/s)
+  { value: 24.5, color: 'rgba(244, 81, 30, 1)' },    // Force 10: Storm (24.5-28.4 m/s)
+  { value: 28.5, color: 'rgba(229, 57, 53, 1)' },    // Force 11: Violent Storm (28.5-32.6 m/s)
+  { value: 32.7, color: 'rgba(183, 28, 28, 1)' }     // Force 12: Hurricane Force (>= 32.7 m/s)
+];
+
+// Default color thresholds based on Beaufort scale (km/h - kilometers per hour)
+const DEFAULT_THRESHOLDS_KMH = [
+  { value: 0,   color: 'rgba(187, 222, 251, 1)' },  // Force 0: Calm (< 1 km/h)
+  { value: 1,   color: 'rgba(144, 202, 249, 1)' },  // Force 1: Light Air (1-5 km/h)
+  { value: 6,   color: 'rgba(100, 181, 246, 1)' },  // Force 2: Light Breeze (6-11 km/h)
+  { value: 12,  color: 'rgba(66, 165, 245, 1)' },   // Force 3: Gentle Breeze (12-19 km/h)
+  { value: 20,  color: 'rgba(30, 136, 229, 1)' },   // Force 4: Moderate Breeze (20-28 km/h)
+  { value: 29,  color: 'rgba(192, 202, 81, 1)' },   // Force 5: Fresh Breeze (29-38 km/h)
+  { value: 39,  color: 'rgba(225, 213, 60, 1)' },   // Force 6: Strong Breeze (39-49 km/h)
+  { value: 50,  color: 'rgba(255, 213, 79, 1)' },   // Force 7: Near Gale (50-61 km/h)
+  { value: 62,  color: 'rgba(255, 183, 77, 1)' },   // Force 8: Gale (62-74 km/h)
+  { value: 75,  color: 'rgba(239, 108, 0, 1)' },    // Force 9: Strong Gale (75-88 km/h)
+  { value: 89,  color: 'rgba(244, 81, 30, 1)' },    // Force 10: Storm (89-102 km/h)
+  { value: 103, color: 'rgba(229, 57, 53, 1)' },    // Force 11: Violent Storm (103-117 km/h)
+  { value: 118, color: 'rgba(183, 28, 28, 1)' }     // Force 12: Hurricane Force (>= 118 km/h)
+];
+
+// Default color thresholds based on Beaufort scale (knots - nautical)
+const DEFAULT_THRESHOLDS_KTS = [
+  { value: 0,  color: 'rgba(187, 222, 251, 1)' },  // Force 0: Calm (< 1 kn)
+  { value: 1,  color: 'rgba(144, 202, 249, 1)' },  // Force 1: Light Air (1-3 kn)
+  { value: 4,  color: 'rgba(100, 181, 246, 1)' },  // Force 2: Light Breeze (4-6 kn)
+  { value: 7,  color: 'rgba(66, 165, 245, 1)' },   // Force 3: Gentle Breeze (7-10 kn)
+  { value: 11, color: 'rgba(30, 136, 229, 1)' },   // Force 4: Moderate Breeze (11-16 kn)
+  { value: 17, color: 'rgba(192, 202, 81, 1)' },   // Force 5: Fresh Breeze (17-21 kn)
+  { value: 22, color: 'rgba(225, 213, 60, 1)' },   // Force 6: Strong Breeze (22-27 kn)
+  { value: 28, color: 'rgba(255, 213, 79, 1)' },   // Force 7: Near Gale (28-33 kn)
+  { value: 34, color: 'rgba(255, 183, 77, 1)' },   // Force 8: Gale (34-40 kn)
+  { value: 41, color: 'rgba(239, 108, 0, 1)' },    // Force 9: Strong Gale (41-47 kn)
+  { value: 48, color: 'rgba(244, 81, 30, 1)' },    // Force 10: Storm (48-55 kn)
+  { value: 56, color: 'rgba(229, 57, 53, 1)' },    // Force 11: Violent Storm (56-63 kn)
+  { value: 64, color: 'rgba(183, 28, 28, 1)' }     // Force 12: Hurricane Force (>= 64 kn)
+];
+
+/**
+ * Get appropriate default thresholds based on unit of measurement.
+ * @param {string} unit - The unit of measurement (mph, m/s, km/h, kn, etc.)
+ * @returns {Array} - Array of threshold objects with value and color properties
+ */
+function getDefaultThresholdsForUnit(unit) {
+  if (!unit) return DEFAULT_THRESHOLDS_MPH;
+  const u = unit.toLowerCase().trim();
+  if (u === 'm/s' || u === 'mps') return DEFAULT_THRESHOLDS_MS;
+  if (u === 'km/h' || u === 'kph' || u === 'kmh') return DEFAULT_THRESHOLDS_KMH;
+  if (u === 'kn' || u === 'kt' || u === 'kts' || u === 'knot' || u === 'knots') return DEFAULT_THRESHOLDS_KTS;
+  return DEFAULT_THRESHOLDS_MPH;
+}
+
+// Card version
+const VERSION = '0.6.2';
+
+// Card CSS styles
+
+/**
+ * Create and return a <style> element with all card CSS rules.
+ * @returns {HTMLStyleElement} - Style element with card CSS
+ */
+function createStyleElement() {
+  const style = document.createElement('style');
+  style.textContent = `
+    /* Main container */
+    ha-card {
+      display: block;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* Card header with title and navigation */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid var(--divider-color);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--primary-text-color);
+    }
+
+    /* Navigation controls */
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-btn {
+      background: var(--primary-color);
+      color: var(--text-primary-color, white);
+      border: none;
+      border-radius: 4px;
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      opacity: 0.8;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .nav-btn:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+
+    .nav-btn-current {
+      background: var(--primary-color);
+      color: var(--text-primary-color, white);
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .nav-btn-current:hover {
+      opacity: 0.8;
+    }
+
+    .nav-btn-current:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+
+    .nav-btn-current.hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .date-range {
+      font-size: 14px;
+      color: var(--secondary-text-color);
+      min-width: 120px;
+      text-align: center;
+    }
+
+    /* Heatmap grid container */
+    .heatmap-grid {
+      padding: 16px;
+    }
+
+    .month-header {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--primary-text-color);
+      margin-bottom: 12px;
+    }
+
+    /* Grid wrapper with time labels and data grid */
+    .grid-wrapper {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+
+    /* Time labels column */
+    .time-labels {
+      display: flex;
+      flex-direction: column;
+      gap: var(--cell-gap, 2px);
+      padding-top: 28px;  /* Align with data grid (after date headers) */
+    }
+
+    .time-label {
+      height: var(--cell-height, 36px);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      font-size: var(--cell-font-size, 11px);
+      color: var(--secondary-text-color);
+      font-weight: 500;
+    }
+
+    /* Data grid container */
+    .data-grid-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* Date headers row */
+    .date-headers {
+      display: grid;
+      grid-template-columns: repeat(var(--days-count, 7), 1fr);
+      gap: 2px;
+      margin-bottom: 4px;
+    }
+
+    .date-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 12px;
+      color: var(--primary-text-color);
+      padding: 4px;
+    }
+
+    /* Data cells grid */
+    .data-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--days-count, 7), var(--cell-width, 1fr));
+      grid-auto-rows: var(--cell-height, 36px);
+      gap: var(--cell-gap, 2px);
+    }
+
+    /* Individual cells */
+    .cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--cell-border-radius, 4px);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      position: relative;
+      font-size: var(--cell-font-size, 11px);
+      padding: var(--cell-padding, 2px);
+      box-sizing: border-box;
+    }
+
+    /* Only apply hover effects on devices with a true hover-capable pointer.
+       On touch devices, :hover is sticky after tap and can cause the cell to
+       render on top of the more-info popup due to the transform stacking context. */
+    @media (hover: hover) {
+      .cell:hover:not(.no-data) {
+        transform: scale(1.08);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+      }
+
+      .cell.no-data:hover {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+
+    .cell:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+
+    .cell.no-data {
+      background-color: var(--disabled-color, #f0f0f0);
+      cursor: default;
+      opacity: 0.4;
+    }
+
+    .cell.partial {
+      border: 2px dashed currentColor;
+      opacity: 0.9;
+    }
+
+    .speed {
+      font-weight: bold;
+      line-height: 1.1;
+    }
+
+    .direction {
+      font-size: 10px;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    /* Footer with statistics */
+    .footer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--divider-color);
+      background: var(--card-background-color);
+      font-size: 13px;
+      color: var(--secondary-text-color);
+    }
+
+    .footer-stats {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .footer-stats span {
+      font-weight: 500;
+    }
+
+    .entity-name {
+      text-align: center;
+      font-size: 11px;
+      color: var(--secondary-text-color);
+      opacity: 0.8;
+    }
+
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 32px;
+      color: var(--secondary-text-color);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--divider-color);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error message */
+    .error-message {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      margin: 16px;
+      background: rgba(244, 67, 54, 0.1);
+      color: var(--error-color, #f44336);
+      border-radius: 4px;
+      border-left: 4px solid var(--error-color, #f44336);
+    }
+
+    .error-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .error-text {
+      flex: 1;
+    }
+
+    .error-details {
+      font-size: 11px;
+      margin-top: 4px;
+      opacity: 0.8;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      z-index: 1000;
+      background: var(--card-background-color, white);
+      border: 1px solid var(--divider-color);
+      border-radius: 4px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      padding: 8px 12px;
+      font-size: 12px;
+      pointer-events: none;
+      max-width: 250px;
+      line-height: 1.4;
+    }
+
+    .tooltip div {
+      margin: 2px 0;
+    }
+
+    .tooltip strong {
+      color: var(--primary-text-color);
+    }
+
+    /* Legend bar */
+    .legend {
+      padding: 8px 16px 12px;
+      border-top: 1px solid var(--divider-color);
+    }
+
+    .legend-bar {
+      height: 12px;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .legend-labels {
+      position: relative;
+      height: 14px;
+      margin-top: 4px;
+      font-size: 9px;
+      color: var(--secondary-text-color);
+    }
+
+    .legend-labels span {
+      position: absolute;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    /* Compact header: reduces padding, title size, and nav arrow size */
+    .compact-header .card-header {
+      padding: 4px 8px;
+      gap: 4px;
+    }
+
+    .compact-header .title {
+      font-size: 14px;
+    }
+
+    .compact-header .nav-btn {
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+    }
+
+    .compact-header .nav-btn-current {
+      padding: 2px 6px;
+      font-size: 11px;
+    }
+
+    .compact-header .month-header {
+      font-size: 13px;
+      margin-bottom: 4px;
+      padding: 2px 0;
+    }
+
+    .compact-header .footer {
+      padding: 6px 8px;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .data-grid {
+        grid-auto-rows: calc(var(--cell-height, 36px) * 0.83);
+      }
+
+      .time-label {
+        height: calc(var(--cell-height, 36px) * 0.83);
+        font-size: calc(var(--cell-font-size, 11px) * 0.91);
+      }
+
+      .cell {
+        font-size: calc(var(--cell-font-size, 11px) * 0.91);
+      }
+
+      .direction {
+        display: none;
+      }
+
+      .date-header {
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .card-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .nav-controls {
+        justify-content: center;
+      }
+    }
+
+    /* Accessibility: High contrast mode support */
+    @media (prefers-contrast: high) {
+      .cell:not(.no-data) {
+        border: 1px solid currentColor;
+      }
+    }
+
+    /* Accessibility: Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      .cell,
+      .nav-btn,
+      .loading-spinner {
+        transition: none;
+        animation: none;
+      }
+    }
+  `;
+  return style;
+}
+
+// Color parsing, interpolation, and utility functions
+
+/**
+ * Parse color string to RGB object.
+ * Supports rgba(), rgb(), and hex formats.
+ * @param {string} color - Color string
+ * @returns {Object|null} - RGB object {r, g, b} or null if parsing fails
+ */
+function parseColor(color) {
+  // Handle rgba() format
+  if (color.startsWith('rgba(')) {
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+      return {
+        r: parseInt(match[1], 10),
+        g: parseInt(match[2], 10),
+        b: parseInt(match[3], 10)
+      };
+    }
+  }
+  // Handle rgb() format
+  if (color.startsWith('rgb(')) {
+    const match = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (match) {
+      return {
+        r: parseInt(match[1], 10),
+        g: parseInt(match[2], 10),
+        b: parseInt(match[3], 10)
+      };
+    }
+  }
+  // Handle hex format
+  const hex = color.replace('#', '');
+  if (hex.length === 6) {
+    return {
+      r: parseInt(hex.substr(0, 2), 16),
+      g: parseInt(hex.substr(2, 2), 16),
+      b: parseInt(hex.substr(4, 2), 16)
+    };
+  }
+  return null;
+}
+
+/**
+ * Linear RGB interpolation.
+ * @param {Object} rgb1 - Start RGB color
+ * @param {Object} rgb2 - End RGB color
+ * @param {number} t - Interpolation factor (0-1)
+ * @returns {string} - Interpolated color as rgb() string
+ */
+function interpolateRGB(rgb1, rgb2, t) {
+  const r = Math.round(rgb1.r + (rgb2.r - rgb1.r) * t);
+  const g = Math.round(rgb1.g + (rgb2.g - rgb1.g) * t);
+  const b = Math.round(rgb1.b + (rgb2.b - rgb1.b) * t);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+/**
+ * Gamma-corrected RGB interpolation.
+ * @param {Object} rgb1 - Start RGB color
+ * @param {Object} rgb2 - End RGB color
+ * @param {number} t - Interpolation factor (0-1)
+ * @param {number} gamma - Gamma value (default 2.2)
+ * @returns {string} - Interpolated color as rgb() string
+ */
+function interpolateGamma(rgb1, rgb2, t, gamma = 2.2) {
+  const r = Math.pow(Math.pow(rgb1.r / 255, gamma) * (1 - t) + Math.pow(rgb2.r / 255, gamma) * t, 1 / gamma) * 255;
+  const g = Math.pow(Math.pow(rgb1.g / 255, gamma) * (1 - t) + Math.pow(rgb2.g / 255, gamma) * t, 1 / gamma) * 255;
+  const b = Math.pow(Math.pow(rgb1.b / 255, gamma) * (1 - t) + Math.pow(rgb2.b / 255, gamma) * t, 1 / gamma) * 255;
+  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+}
+
+/**
+ * Convert RGB to HSL color space.
+ * @param {Object} rgb - RGB color object
+ * @returns {Object} - HSL color object {h, s, l}
+ */
+function rgbToHsl(rgb) {
+  const r = rgb.r / 255;
+  const g = rgb.g / 255;
+  const b = rgb.b / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+
+  if (max === min) {
+    return { h: 0, s: 0, l };
+  }
+
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+  let h;
+  switch (max) {
+    case r: h = ((g - b) / d + (g < b ? 6 : 0)) * 60; break;
+    case g: h = ((b - r) / d + 2) * 60; break;
+    case b: h = ((r - g) / d + 4) * 60; break;
+  }
+
+  return { h, s, l };
+}
+
+/**
+ * Convert HSL to RGB color space.
+ * @param {Object} hsl - HSL color object {h, s, l}
+ * @returns {Object} - RGB color object {r, g, b}
+ */
+function hslToRgb(hsl) {
+  const { h, s, l } = hsl;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+  let r = 0, g = 0, b = 0;
+
+  if (h < 60) [r, g, b] = [c, x, 0];
+  else if (h < 120) [r, g, b] = [x, c, 0];
+  else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c];
+  else if (h < 300) [r, g, b] = [x, 0, c];
+  else [r, g, b] = [c, 0, x];
+
+  return {
+    r: (r + m) * 255,
+    g: (g + m) * 255,
+    b: (b + m) * 255
+  };
+}
+
+/**
+ * HSL interpolation (takes shortest path around hue wheel).
+ * @param {Object} rgb1 - Start RGB color
+ * @param {Object} rgb2 - End RGB color
+ * @param {number} t - Interpolation factor (0-1)
+ * @returns {string} - Interpolated color as rgb() string
+ */
+function interpolateHSL(rgb1, rgb2, t) {
+  const hsl1 = rgbToHsl(rgb1);
+  const hsl2 = rgbToHsl(rgb2);
+
+  // Handle hue interpolation (shortest path)
+  let h;
+  const hueDiff = hsl2.h - hsl1.h;
+  if (Math.abs(hueDiff) > 180) {
+    if (hueDiff > 0) {
+      h = hsl1.h + (hueDiff - 360) * t;
+    } else {
+      h = hsl1.h + (hueDiff + 360) * t;
+    }
+  } else {
+    h = hsl1.h + hueDiff * t;
+  }
+  if (h < 0) h += 360;
+  if (h >= 360) h -= 360;
+
+  const s = hsl1.s + (hsl2.s - hsl1.s) * t;
+  const l = hsl1.l + (hsl2.l - hsl1.l) * t;
+
+  const rgb = hslToRgb({ h, s, l });
+  return `rgb(${Math.round(rgb.r)}, ${Math.round(rgb.g)}, ${Math.round(rgb.b)})`;
+}
+
+/**
+ * Convert RGB to LAB color space.
+ * @param {Object} rgb - RGB color object
+ * @returns {Object} - LAB color object {L, a, b}
+ */
+function rgbToLab(rgb) {
+  // RGB to XYZ
+  let r = rgb.r / 255;
+  let g = rgb.g / 255;
+  let b = rgb.b / 255;
+
+  r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+  g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+  b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+
+  const x = (r * 0.4124564 + g * 0.3575761 + b * 0.1804375) / 0.95047;
+  const y = (r * 0.2126729 + g * 0.7151522 + b * 0.0721750);
+  const z = (r * 0.0193339 + g * 0.1191920 + b * 0.9503041) / 1.08883;
+
+  // XYZ to LAB
+  const fx = x > 0.008856 ? Math.pow(x, 1 / 3) : (7.787 * x) + 16 / 116;
+  const fy = y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + 16 / 116;
+  const fz = z > 0.008856 ? Math.pow(z, 1 / 3) : (7.787 * z) + 16 / 116;
+
+  return {
+    L: (116 * fy) - 16,
+    a: 500 * (fx - fy),
+    b: 200 * (fy - fz)
+  };
+}
+
+/**
+ * Convert LAB to RGB color space.
+ * @param {Object} lab - LAB color object {L, a, b}
+ * @returns {Object} - RGB color object {r, g, b}
+ */
+function labToRgb(lab) {
+  // LAB to XYZ
+  const fy = (lab.L + 16) / 116;
+  const fx = lab.a / 500 + fy;
+  const fz = fy - lab.b / 200;
+
+  const x = (Math.pow(fx, 3) > 0.008856 ? Math.pow(fx, 3) : (fx - 16 / 116) / 7.787) * 0.95047;
+  const y = Math.pow(fy, 3) > 0.008856 ? Math.pow(fy, 3) : (fy - 16 / 116) / 7.787;
+  const z = (Math.pow(fz, 3) > 0.008856 ? Math.pow(fz, 3) : (fz - 16 / 116) / 7.787) * 1.08883;
+
+  // XYZ to RGB
+  let r = x * 3.2404542 + y * -1.5371385 + z * -0.4985314;
+  let g = x * -0.969266 + y * 1.8760108 + z * 0.0415560;
+  let b = x * 0.0556434 + y * -0.2040259 + z * 1.0572252;
+
+  r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : 12.92 * r;
+  g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : 12.92 * g;
+  b = b > 0.0031308 ? 1.055 * Math.pow(b, 1 / 2.4) - 0.055 : 12.92 * b;
+
+  return {
+    r: Math.max(0, Math.min(255, r * 255)),
+    g: Math.max(0, Math.min(255, g * 255)),
+    b: Math.max(0, Math.min(255, b * 255))
+  };
+}
+
+/**
+ * LAB interpolation (perceptually uniform).
+ * @param {Object} rgb1 - Start RGB color
+ * @param {Object} rgb2 - End RGB color
+ * @param {number} t - Interpolation factor (0-1)
+ * @returns {string} - Interpolated color as rgb() string
+ */
+function interpolateLAB(rgb1, rgb2, t) {
+  const lab1 = rgbToLab(rgb1);
+  const lab2 = rgbToLab(rgb2);
+
+  const L = lab1.L + (lab2.L - lab1.L) * t;
+  const a = lab1.a + (lab2.a - lab1.a) * t;
+  const b = lab1.b + (lab2.b - lab1.b) * t;
+
+  const rgb = labToRgb({ L, a, b });
+  return `rgb(${Math.round(rgb.r)}, ${Math.round(rgb.g)}, ${Math.round(rgb.b)})`;
+}
+
+/**
+ * Interpolate between two colors using the specified method.
+ * @param {string} color1 - Start color string
+ * @param {string} color2 - End color string
+ * @param {number} t - Interpolation factor (0-1)
+ * @param {string} method - Interpolation method ('rgb', 'gamma', 'hsl', 'lab')
+ * @returns {string} - Interpolated color as rgb() string
+ */
+function interpolateColor(color1, color2, t, method = 'hsl') {
+  const rgb1 = parseColor(color1);
+  const rgb2 = parseColor(color2);
+
+  if (!rgb1 || !rgb2) return color1;
+
+  switch (method) {
+    case 'rgb':
+      return interpolateRGB(rgb1, rgb2, t);
+    case 'gamma':
+      return interpolateGamma(rgb1, rgb2, t);
+    case 'hsl':
+      return interpolateHSL(rgb1, rgb2, t);
+    case 'lab':
+      return interpolateLAB(rgb1, rgb2, t);
+    default:
+      return interpolateHSL(rgb1, rgb2, t);
+  }
+}
+
+/**
+ * Get contrasting text color (black or white) for a background color.
+ * Uses luminance calculation to determine optimal contrast.
+ * @param {string} backgroundColor - Background color string
+ * @returns {string} - '#000000' for light backgrounds, '#ffffff' for dark backgrounds
+ */
+function getContrastTextColor(backgroundColor) {
+  // Handle CSS variables
+  if (backgroundColor.startsWith('var(')) {
+    return 'var(--primary-text-color)';
+  }
+
+  // Handle rgba() format
+  if (backgroundColor.startsWith('rgba(')) {
+    const match = backgroundColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+      const r = parseInt(match[1], 10);
+      const g = parseInt(match[2], 10);
+      const b = parseInt(match[3], 10);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      return luminance > 0.5 ? '#000000' : '#ffffff';
+    }
+  }
+
+  // Handle rgb() format
+  if (backgroundColor.startsWith('rgb(')) {
+    const match = backgroundColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (match) {
+      const r = parseInt(match[1], 10);
+      const g = parseInt(match[2], 10);
+      const b = parseInt(match[3], 10);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      return luminance > 0.5 ? '#000000' : '#ffffff';
+    }
+  }
+
+  // Handle hex format
+  const hex = backgroundColor.replace('#', '');
+  if (hex.length === 6) {
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Calculate relative luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return black for light backgrounds, white for dark backgrounds
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  }
+
+  // Fallback
+  return 'var(--primary-text-color)';
+}
+
+/**
+ * Get color for wind speed value based on thresholds.
+ * @param {number} speed - Wind speed value
+ * @param {Array} thresholds - Array of threshold objects {value, color}
+ * @param {boolean} interpolate - Whether to interpolate between thresholds
+ * @param {string} interpolationMethod - Interpolation method if enabled
+ * @returns {string} - Color string for the speed value
+ */
+function getColorForSpeed(speed, thresholds, interpolate = false, interpolationMethod = 'hsl') {
+  if (speed === null || speed === undefined) {
+    return 'var(--disabled-color, #f0f0f0)';
+  }
+
+  // If interpolation is disabled, use threshold-based coloring
+  if (!interpolate) {
+    let color = thresholds[0].color;
+    for (let i = 0; i < thresholds.length; i++) {
+      if (speed >= thresholds[i].value) {
+        color = thresholds[i].color;
+      } else {
+        break;
+      }
+    }
+    return color;
+  }
+
+  // Interpolation mode: find the two thresholds to blend between
+  if (speed <= thresholds[0].value) {
+    return thresholds[0].color;
+  }
+
+  if (speed >= thresholds[thresholds.length - 1].value) {
+    return thresholds[thresholds.length - 1].color;
+  }
+
+  // Find the two thresholds to interpolate between
+  for (let i = 0; i < thresholds.length - 1; i++) {
+    if (speed >= thresholds[i].value && speed < thresholds[i + 1].value) {
+      const t = (speed - thresholds[i].value) / (thresholds[i + 1].value - thresholds[i].value);
+      return interpolateColor(thresholds[i].color, thresholds[i + 1].color, t, interpolationMethod);
+    }
+  }
+
+  return thresholds[thresholds.length - 1].color;
+}
+
+/**
+ * Convert rgba() color to hex format (for color picker).
+ * @param {string} color - Color string (rgba, rgb, or hex)
+ * @returns {string} - Hex color string
+ */
+function rgbaToHex(color) {
+  if (color.startsWith('#')) return color;
+  const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (match) {
+    const r = parseInt(match[1], 10).toString(16).padStart(2, '0');
+    const g = parseInt(match[2], 10).toString(16).padStart(2, '0');
+    const b = parseInt(match[3], 10).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
+  }
+  return '#ffffff';
+}
+
+// Formatting and utility functions
+
+/**
+ * Escape HTML to prevent XSS via textContent/innerHTML conversion.
+ * @param {string} text - Text to escape
+ * @returns {string} - HTML-escaped text
+ */
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+/**
+ * Format hour as "12a", "3p", etc. (12-hour) or "00", "15", etc. (24-hour).
+ * @param {number} hour - Hour (0-23)
+ * @param {string} format - Time format ('12' or '24')
+ * @returns {string} - Formatted hour string
+ */
+function formatHourLabel(hour, format = '24') {
+  if (format === '24') {
+    return String(hour).padStart(2, '0');
+  }
+  // 12-hour format
+  const h = hour === 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+  const suffix = hour < 12 ? 'a' : 'p';
+  return `${h}${suffix}`;
+}
+
+/**
+ * Convert degrees to arrow character.
+ * Arrow points in the direction wind is blowing TO (not FROM).
+ * @param {number} degrees - Wind direction in degrees (0-360)
+ * @returns {string} - Arrow character
+ */
+function degreesToArrow(degrees) {
+  const arrows = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖'];
+  // Add 180 degrees to point arrow where wind is blowing TO (not FROM)
+  const adjustedDegrees = (degrees + 180) % 360;
+  const index = Math.round(adjustedDegrees / 45) % 8;
+  return arrows[index];
+}
+
+/**
+ * Convert degrees to cardinal direction.
+ * @param {number} degrees - Wind direction in degrees (0-360)
+ * @returns {string} - Cardinal direction (N, NE, E, SE, S, SW, W, NW)
+ */
+function degreesToCardinal(degrees) {
+  const cardinals = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  const index = Math.round(degrees / 45) % 8;
+  return cardinals[index];
+}
+
+/**
+ * Format wind direction for display.
+ * @param {number} degrees - Wind direction in degrees (0-360)
+ * @param {string} format - Display format ('arrow', 'cardinal', 'degrees')
+ * @returns {string} - Formatted direction string
+ */
+function formatDirection(degrees, format) {
+  if (degrees === null || degrees === undefined) return '';
+
+  switch (format) {
+    case 'arrow':
+      return degreesToArrow(degrees);
+    case 'cardinal':
+      return degreesToCardinal(degrees);
+    case 'degrees':
+      return `${Math.round(degrees)}deg`;
+    default:
+      return '';
+  }
+}
+
+/**
+ * Normalize size values: numbers -> "Npx", strings -> pass through.
+ * @param {number|string} value - Size value
+ * @param {string} defaultValue - Default value if input is empty
+ * @returns {string} - Normalized size string
+ */
+function normalizeSize(value, defaultValue) {
+  if (value === undefined || value === null || value === '') {
+    return defaultValue;
+  }
+  if (typeof value === 'number') {
+    return `${value}px`;
+  }
+  return String(value);
+}
+
+/**
+ * Get date key in format YYYY-MM-DD using LOCAL timezone.
+ * @param {Date} date - Date object
+ * @returns {string} - Date key string
+ */
+function getDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Bucket hour into interval (e.g., hour 7 with 2-hour interval -> 6).
+ * @param {number} hour - Hour (0-23)
+ * @param {number} intervalHours - Interval in hours
+ * @returns {number} - Bucketed hour
+ */
+function getHourBucket(hour, intervalHours) {
+  return Math.floor(hour / intervalHours) * intervalHours;
+}
+
+/**
+ * Calculate circular mean for wind direction angles.
+ * @param {Array<number>} directions - Array of direction values in degrees
+ * @returns {number|null} - Average direction in degrees (0-360) or null if empty
+ */
+function averageDirection(directions) {
+  if (directions.length === 0) return null;
+
+  // Convert to radians, calculate vector average, convert back
+  let sumSin = 0;
+  let sumCos = 0;
+
+  directions.forEach(deg => {
+    const rad = (deg * Math.PI) / 180;
+    sumSin += Math.sin(rad);
+    sumCos += Math.cos(rad);
+  });
+
+  const avgRad = Math.atan2(sumSin / directions.length, sumCos / directions.length);
+  let avgDeg = (avgRad * 180) / Math.PI;
+
+  // Normalize to 0-360 range
+  if (avgDeg < 0) avgDeg += 360;
+
+  return Math.round(avgDeg);
+}
+
+// Main Windspeed Heatmap Card component
+
+
+/**
+ * Windspeed Heatmap Card component.
+ * Displays wind speed history as a color-coded heatmap using Beaufort scale colors.
+ */
+class WindspeedHeatmapCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+
+    // Configuration and state
+    this._config = {};
+    this._hass = null;
+
+    // Data caching
+    this._historyData = null;
+    this._processedData = null;
+    this._lastFetch = 0;
+
+    // Navigation state
+    this._viewOffset = 0;  // Days offset from current (0=today, -7=week ago)
+
+    // UI state
+    this._isLoading = false;
+    this._error = null;
+    this._interval = null;
+
+    // Initialize Shadow DOM with styles
+    this.shadowRoot.appendChild(createStyleElement());
+    this._content = document.createElement('ha-card');
+    this.shadowRoot.appendChild(this._content);
+
+    // Event delegation for all clicks
+    this._content.addEventListener('click', this._handleClick.bind(this));
+
+    // Store cached responses in memory
+    this._responseCache = new Map();
+  }
+
+  // Home Assistant required method: set card configuration
+  setConfig(config) {
+    // Validate required fields
+    if (!config.entity) {
+      throw new Error("'entity' is required (wind speed sensor)");
+    }
+
+    // Validate time_interval
+    const validIntervals = [1, 2, 3, 4, 6, 8, 12, 24];
+    if (config.time_interval && !validIntervals.includes(config.time_interval)) {
+      throw new Error(`time_interval must be one of: ${validIntervals.join(', ')}`);
+    }
+
+    // Validate days
+    if (config.days && (config.days < 1 || config.days > 30)) {
+      throw new Error('days must be between 1 and 30');
+    }
+
+    // Validate color_interpolation
+    const validInterpolations = ['rgb', 'gamma', 'hsl', 'lab'];
+    if (config.color_interpolation && !validInterpolations.includes(config.color_interpolation)) {
+      throw new Error(`color_interpolation must be one of: ${validInterpolations.join(', ')}`);
+    }
+
+    // Validate data_source
+    const validDataSources = ['auto', 'history', 'statistics'];
+    if (config.data_source && !validDataSources.includes(config.data_source)) {
+      throw new Error(`data_source must be one of: ${validDataSources.join(', ')}`);
+    }
+
+    // Validate statistic_type
+    const validStatisticTypes = ['max', 'mean', 'min'];
+    if (config.statistic_type && !validStatisticTypes.includes(config.statistic_type)) {
+      throw new Error(`statistic_type must be one of: ${validStatisticTypes.join(', ')}`);
+    }
+
+    // Validate cell sizing options
+    if (config.cell_height !== undefined) {
+      const height = typeof config.cell_height === 'number' ? config.cell_height : parseFloat(config.cell_height);
+      if (isNaN(height) || height < 10 || height > 200) {
+        throw new Error('cell_height must be between 10 and 200 pixels');
+      }
+    }
+
+    if (config.cell_padding !== undefined) {
+      const padding = typeof config.cell_padding === 'number' ? config.cell_padding : parseFloat(config.cell_padding);
+      if (isNaN(padding) || padding < 0 || padding > 20) {
+        throw new Error('cell_padding must be between 0 and 20 pixels');
+      }
+    }
+
+    if (config.cell_gap !== undefined) {
+      const gap = typeof config.cell_gap === 'number' ? config.cell_gap : parseFloat(config.cell_gap);
+      if (isNaN(gap) || gap < 0 || gap > 20) {
+        throw new Error('cell_gap must be between 0 and 20 pixels');
+      }
+    }
+
+    if (config.cell_font_size !== undefined) {
+      const fontSize = typeof config.cell_font_size === 'number' ? config.cell_font_size : parseFloat(config.cell_font_size);
+      if (isNaN(fontSize) || fontSize < 6 || fontSize > 24) {
+        throw new Error('cell_font_size must be between 6 and 24 pixels');
+      }
+    }
+
+    if (config.cell_width !== undefined && typeof config.cell_width !== 'string') {
+      const width = parseFloat(config.cell_width);
+      if (isNaN(width) || width < 10 || width > 500) {
+        throw new Error('cell_width as number must be between 10 and 500 pixels');
+      }
+    }
+
+    // Track whether user provided custom thresholds
+    const hasCustomThresholds = config.color_thresholds && config.color_thresholds.length > 0;
+
+    // Build configuration with defaults
+    this._config = {
+      // Required
+      entity: config.entity,
+
+      // Optional entities
+      direction_entity: config.direction_entity || null,
+
+      // Display options
+      title: config.title || 'Wind Speed History',
+      days: config.days || 7,
+      time_interval: config.time_interval || 2,
+      time_format: config.time_format || '24',  // '12' or '24'
+
+      // Units
+      unit: config.unit || null,
+
+      // Track if custom thresholds were provided (for auto-selection on unit detection)
+      _hasCustomThresholds: hasCustomThresholds,
+      _thresholdsInitialized: !!config.unit,  // True if we know the unit at config time
+
+      // Color thresholds - use defaults if not provided or empty
+      // Default thresholds are selected based on the configured unit
+      color_thresholds: hasCustomThresholds
+        ? config.color_thresholds
+        : getDefaultThresholdsForUnit(config.unit).slice(),
+
+      // Direction display
+      show_direction: config.show_direction !== false,
+      direction_format: config.direction_format || 'arrow',  // 'arrow', 'degrees', 'cardinal'
+
+      // Refresh
+      refresh_interval: config.refresh_interval || 300,  // Seconds (5 min default)
+
+      // Interaction
+      click_action: config.click_action || 'more-info',  // 'none', 'more-info', 'tooltip'
+
+      // Display options
+      show_entity_name: config.show_entity_name || false,
+
+      // Cell sizing options
+      cell_height: config.cell_height !== undefined ? config.cell_height : 36,
+      cell_width: config.cell_width !== undefined ? config.cell_width : '1fr',
+      cell_padding: config.cell_padding !== undefined ? config.cell_padding : 2,
+      cell_gap: config.cell_gap !== undefined ? config.cell_gap : 2,
+      cell_font_size: config.cell_font_size !== undefined ? config.cell_font_size : 11,
+      compact: config.compact || false,
+      compact_header: config.compact_header || false,
+
+      // Visual options
+      rounded_corners: config.rounded_corners !== false,  // Default true
+      show_legend: config.show_legend || false,  // Default false
+      interpolate_colors: config.interpolate_colors || false,
+      color_interpolation: config.color_interpolation || 'hsl',  // 'gamma', 'hsl', 'lab', 'rgb'
+
+      // Data source options
+      data_source: config.data_source || 'auto',  // 'auto', 'history', 'statistics'
+      statistic_type: config.statistic_type || 'max',  // 'max', 'mean', 'min' (for statistics data)
+    };
+
+    // Sort thresholds by value (ascending) - create mutable copy to avoid "read-only" errors
+    this._config.color_thresholds = [...this._config.color_thresholds].sort((a, b) => a.value - b.value);
+
+    // Set up refresh interval
+    if (this._hass) {
+      this._clearAndSetInterval();
+    }
+  }
+
+  // Returns the visual config editor element
+  static getConfigElement() {
+    return document.createElement('windspeed-heatmap-card-editor');
+  }
+
+  // Returns a minimal configuration that will result in a working card
+  static getStubConfig(hass) {
+    // Find the first wind speed sensor
+    const windSensors = Object.keys(hass.states)
+      .filter(entityId => {
+        if (!entityId.startsWith('sensor.')) return false;
+        const entity = hass.states[entityId];
+        const deviceClass = entity?.attributes?.device_class;
+        const unit = entity?.attributes?.unit_of_measurement?.toLowerCase() || '';
+        // Check for wind speed by device class or unit
+        return deviceClass === 'wind_speed' ||
+               unit.includes('mph') ||
+               unit.includes('km/h') ||
+               unit.includes('m/s') ||
+               unit.includes('knot') ||
+               unit.includes('kn') ||
+               unit.includes('kt');
+      });
+
+    // Detect unit from the found sensor to select appropriate thresholds
+    let detectedUnit = null;
+    if (windSensors.length > 0) {
+      const entity = hass.states[windSensors[0]];
+      detectedUnit = entity?.attributes?.unit_of_measurement;
+    }
+
+    return {
+      entity: windSensors.length > 0 ? windSensors[0] : '',
+      title: 'Wind Speed History',
+      days: 7,
+      time_interval: 2,
+      color_thresholds: getDefaultThresholdsForUnit(detectedUnit).slice()
+    };
+  }
+
+  // Home Assistant required method: receive hass object updates
+  set hass(hass) {
+    this._hass = hass;
+
+    if (!this._config || !this.isConnected) return;
+
+    // Auto-select appropriate thresholds based on detected unit (first time only)
+    if (!this._config._hasCustomThresholds && !this._config._thresholdsInitialized) {
+      const detectedUnit = this._getUnit();
+      if (detectedUnit) {
+        this._config.color_thresholds = getDefaultThresholdsForUnit(detectedUnit).slice();
+        this._config._thresholdsInitialized = true;
+        console.log(`Windspeed Heatmap: Auto-selected ${detectedUnit} thresholds`);
+      }
+    }
+
+    // Only fetch if viewing current data and data is stale
+    if (this._viewOffset === 0 && this._isDataStale()) {
+      this._fetchHistoryData();
+    }
+  }
+
+  // Home Assistant required method: return card height hint
+  getCardSize() {
+    // Calculate based on number of rows (time slots) and dynamic cell height
+    const rows = this._processedData ? this._processedData.rows.length : 12;
+    const sizing = this._getEffectiveSizing();
+    const cellHeightPx = parseFloat(sizing.cellHeight) || 36;
+
+    // Each row = cellHeight, plus header ~60px, plus footer ~40px, divided by 50px per card unit
+    return Math.ceil((rows * cellHeightPx + 100) / 50);
+  }
+
+  // Lifecycle: component connected to DOM
+  connectedCallback() {
+    if (this._config && this._hass) {
+      this._clearAndSetInterval();
+    }
+  }
+
+  // Lifecycle: component disconnected from DOM
+  disconnectedCallback() {
+    if (this._interval) {
+      clearInterval(this._interval);
+      this._interval = null;
+    }
+  }
+
+  // Set up or refresh the data fetch interval
+  _clearAndSetInterval() {
+    if (this._interval) {
+      clearInterval(this._interval);
+      this._interval = null;
+    }
+
+    // Fetch immediately
+    this._fetchHistoryData();
+
+    // Set up periodic refresh (only when viewing current data)
+    const intervalMs = this._config.refresh_interval * 1000;
+    this._interval = setInterval(() => {
+      if (this._viewOffset === 0) {
+        this._fetchHistoryData();
+      }
+    }, intervalMs);
+  }
+
+  // Check if cached data is stale
+  _isDataStale() {
+    if (!this._historyData || !this._lastFetch) return true;
+
+    const age = Date.now() - this._lastFetch;
+    const maxAge = this._config.refresh_interval * 1000;
+
+    return age > maxAge;
+  }
+
+  async fetchWithCache(url, timeoutMs = 30000, ttlMs = 5 * 60 * 1000) {
+    const now = Date.now();
+    // Include viewOffset in cache key to prevent stale data when navigating
+    const cacheKey = `${url}_offset${this._viewOffset}`;
+
+    // Check if the cache has a valid entry
+    const cached = this._responseCache.get(cacheKey);
+    if (cached && cached.expiry > now) {
+      console.log('Windspeed Heatmap: Using cached data for:', cacheKey);
+      return cached.data;
+    }
+
+    // Fetch with timeout
+    const fetchPromise = this._hass.callApi('GET', url);
+
+    const data = await Promise.race([
+      fetchPromise,
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error(`Request timeout after ${timeoutMs}ms`)),
+          timeoutMs
+        )
+      ),
+    ]);
+
+    // Store in cache
+    this._responseCache.set(cacheKey, { data, expiry: now + ttlMs });
+    return data;
+  }
+
+  // Determine which data source to use based on config and availability
+  _getDataSource() {
+    const source = this._config.data_source;
+
+    if (source === 'history') return 'history';
+    if (source === 'statistics') return 'statistics';
+
+    // Auto mode: prefer statistics for historical data (viewOffset < 0)
+    // or when explicitly looking at older data
+    // Statistics are hourly aggregates - good for longer time ranges
+    if (this._viewOffset < 0) {
+      return 'statistics';
+    }
+
+    // For current view, use history for more granular data
+    return 'history';
+  }
+
+  // Fetch historical data from Home Assistant
+  async _fetchHistoryData() {
+    if (this._isLoading) {
+      console.log('Windspeed Heatmap: Already loading, skipping duplicate fetch');
+      return;
+    }
+
+    this._isLoading = true;
+    this._error = null;
+    this._render();  // Show loading state
+
+    const dataSource = this._getDataSource();
+    console.log(`Windspeed Heatmap: Starting data fetch using ${dataSource}...`);
+
+    try {
+      // Calculate date range in LOCAL timezone, including current partial interval
+      const now = new Date();
+
+      let endTime;
+
+      // Calculate the current partial bucket key (only used when viewing current time)
+      let partialBucketKey = null;
+
+      if (this._viewOffset === 0) {
+        // Current view: use current time to include partial bucket data
+        endTime = new Date(now);
+
+        // Calculate which bucket is currently in progress
+        const intervalHours = this._config.time_interval;
+        const currentDateKey = getDateKey(now);
+        const currentHourBucket = getHourBucket(now.getHours(), intervalHours);
+        partialBucketKey = `${currentDateKey}_${currentHourBucket}`;
+      } else {
+        // Historical view: use end of the target day
+        endTime = new Date(now);
+        endTime.setDate(endTime.getDate() + this._viewOffset);
+        endTime.setHours(23, 59, 59, 999);  // End of day
+      }
+
+      // Calculate start time (N days before end time)
+      const startTime = new Date(endTime);
+      startTime.setDate(startTime.getDate() - this._config.days + 1);
+      startTime.setHours(0, 0, 0, 0);  // Start of first day at midnight
+
+      console.log(`Windspeed Heatmap: Fetching from ${startTime.toLocaleString()} to ${endTime.toLocaleString()}`);
+      if (partialBucketKey) {
+        console.log(`Windspeed Heatmap: Current partial bucket: ${partialBucketKey}`);
+      }
+
+      if (dataSource === 'statistics') {
+        await this._fetchStatisticsData(startTime, endTime, partialBucketKey);
+      } else {
+        await this._fetchHistoryApiData(startTime, endTime, partialBucketKey);
+      }
+
+      this._lastFetch = Date.now();
+
+      // Process and render data
+      const startProcess = Date.now();
+      this._processData();
+      const processDuration = ((Date.now() - startProcess) / 1000).toFixed(2);
+      console.log(`Windspeed Heatmap: Processed data in ${processDuration}s`);
+
+      // Clear loading state BEFORE final render
+      this._isLoading = false;
+
+      console.log('Windspeed Heatmap: Starting render...');
+      this._render();
+      console.log('Windspeed Heatmap: Render complete');
+
+    } catch (error) {
+      console.error('Windspeed Heatmap: Fetch error:', error);
+      this._isLoading = false;
+      this._error = {
+        message: 'Failed to fetch wind speed history',
+        details: error.message
+      };
+      this._render();
+    }
+  }
+
+  // Fetch data using the history/period REST API (short-term states)
+  async _fetchHistoryApiData(startTime, endTime, partialBucketKey = null) {
+    const startTimeISO = startTime.toISOString();
+    const endTimeISO = endTime.toISOString();
+
+    console.log(`Windspeed Heatmap: Using history API - Start: ${startTimeISO}, End: ${endTimeISO}`);
+
+    // Build API URLs - fetch both in parallel for better performance
+    const speedUrl = `history/period/${startTimeISO}?` +
+      `filter_entity_id=${this._config.entity}&` +
+      `end_time=${endTimeISO}&` +
+      `minimal_response&no_attributes`;
+
+    const fetchPromises = [this._hass.callApi('GET', speedUrl)];
+
+    // Add direction fetch if configured
+    if (this._config.direction_entity && this._config.show_direction) {
+      const directionUrl = `history/period/${startTimeISO}?` +
+        `filter_entity_id=${this._config.direction_entity}&` +
+        `end_time=${endTimeISO}&` +
+        `minimal_response&no_attributes`;
+      fetchPromises.push(this._hass.callApi('GET', directionUrl));
+    }
+
+    // Fetch with timeout to prevent hanging
+    const fetchWithTimeout = (promise, timeoutMs = 30000) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout after 30 seconds')), timeoutMs)
+        )
+      ]);
+    };
+
+    // Fetch in parallel with timeout
+    const startFetch = Date.now();
+    const results = await fetchWithTimeout(Promise.all(fetchPromises));
+    const fetchDuration = ((Date.now() - startFetch) / 1000).toFixed(1);
+
+    console.log(`Windspeed Heatmap: Received ${results[0]?.[0]?.length || 0} speed points, ${results[1]?.[0]?.length || 0} direction points in ${fetchDuration}s`);
+
+    this._historyData = {
+      speed: results[0]?.[0] || [],
+      direction: results[1] ? (results[1][0] || []) : [],
+      startTime,
+      endTime,
+      partialBucketKey,
+      dataSource: 'history'
+    };
+  }
+
+  // Fetch data using the recorder/statistics_during_period WebSocket API (long-term statistics)
+  async _fetchStatisticsData(startTime, endTime, partialBucketKey = null) {
+    const startTimeISO = startTime.toISOString();
+    const endTimeISO = endTime.toISOString();
+
+    console.log(`Windspeed Heatmap: Using statistics API - Start: ${startTimeISO}, End: ${endTimeISO}`);
+
+    // Build list of statistic IDs to fetch
+    const statisticIds = [this._config.entity];
+    if (this._config.direction_entity && this._config.show_direction) {
+      statisticIds.push(this._config.direction_entity);
+    }
+
+    // Fetch with timeout to prevent hanging
+    const fetchWithTimeout = (promise, timeoutMs = 30000) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout after 30 seconds')), timeoutMs)
+        )
+      ]);
+    };
+
+    const startFetch = Date.now();
+
+    // Call the WebSocket API for statistics
+    // The API returns hourly aggregated data (mean, min, max) from the statistics table
+    const statsResult = await fetchWithTimeout(
+      this._hass.callWS({
+        type: 'recorder/statistics_during_period',
+        start_time: startTimeISO,
+        end_time: endTimeISO,
+        statistic_ids: statisticIds,
+        period: 'hour',  // Hourly aggregates
+      })
+    );
+
+    const fetchDuration = ((Date.now() - startFetch) / 1000).toFixed(1);
+
+    // Convert statistics format to history format for processing
+    // Statistics API returns: { "sensor.entity": [{ start, end, mean, min, max, sum, state }, ...] }
+    const speedStats = statsResult[this._config.entity] || [];
+    const directionStats = this._config.direction_entity
+      ? (statsResult[this._config.direction_entity] || [])
+      : [];
+
+    console.log(`Windspeed Heatmap: Received ${speedStats.length} speed stats, ${directionStats.length} direction stats in ${fetchDuration}s`);
+
+    // Convert statistics to a format compatible with our processing
+    // Each stat has: start (ISO string), mean, min, max
+    const statisticType = this._config.statistic_type;  // 'max', 'mean', or 'min'
+
+    const speedData = speedStats.map(stat => ({
+      last_changed: stat.start,
+      state: String(stat[statisticType] ?? stat.mean ?? ''),
+    })).filter(point => point.state !== '' && point.state !== 'null');
+
+    // For direction, use mean (circular average would be ideal but mean is reasonable)
+    const directionData = directionStats.map(stat => ({
+      last_changed: stat.start,
+      state: String(stat.mean ?? ''),
+    })).filter(point => point.state !== '' && point.state !== 'null');
+
+    this._historyData = {
+      speed: speedData,
+      direction: directionData,
+      startTime,
+      endTime,
+      partialBucketKey,
+      dataSource: 'statistics'
+    };
+  }
+
+  // Process raw history data into grid structure
+  _processData() {
+    if (!this._historyData) {
+      this._processedData = null;
+      return;
+    }
+
+    const { speed, direction, startTime, partialBucketKey } = this._historyData;
+    const intervalHours = this._config.time_interval;
+    const rowsPerDay = 24 / intervalHours;
+
+    // Build grid with bucketed data
+    // Key format: "YYYY-MM-DD_HH" -> { maxSpeed, directions[] }
+    const grid = {};
+
+    // Process speed data into time buckets - track MAX speed per bucket
+    speed.forEach(point => {
+      const timestamp = new Date(point.last_changed || point.last_updated);
+      const dateKey = getDateKey(timestamp);
+      const hourKey = getHourBucket(timestamp.getHours(), intervalHours);
+      const key = `${dateKey}_${hourKey}`;
+
+      if (!grid[key]) {
+        grid[key] = { maxSpeed: null, directions: [] };
+      }
+
+      const value = parseFloat(point.state);
+      if (!isNaN(value)) {
+        // Track maximum speed for this bucket
+        if (grid[key].maxSpeed === null || value > grid[key].maxSpeed) {
+          grid[key].maxSpeed = value;
+        }
+      }
+    });
+
+    // Process direction data into same buckets - still average directions
+    if (direction && direction.length > 0) {
+      direction.forEach(point => {
+        const timestamp = new Date(point.last_changed || point.last_updated);
+        const dateKey = getDateKey(timestamp);
+        const hourKey = getHourBucket(timestamp.getHours(), intervalHours);
+        const key = `${dateKey}_${hourKey}`;
+
+        if (grid[key]) {
+          const value = parseFloat(point.state);
+          if (!isNaN(value)) {
+            grid[key].directions.push(value);
+          }
+        }
+      });
+    }
+
+    // Calculate average direction for each bucket (direction averaging still makes sense)
+    Object.keys(grid).forEach(key => {
+      const bucket = grid[key];
+
+      // Average direction (circular mean for angles)
+      bucket.avgDirection = bucket.directions.length > 0
+        ? averageDirection(bucket.directions)
+        : null;
+    });
+
+    // Build row/column structure for grid
+    const dates = [];
+    for (let d = 0; d < this._config.days; d++) {
+      const date = new Date(startTime);
+      date.setDate(date.getDate() + d);
+      dates.push(date);
+    }
+
+    const rows = [];
+    let allSpeeds = [];
+
+    // Create rows for each time slot
+    for (let h = 0; h < rowsPerDay; h++) {
+      const hour = h * intervalHours;
+      const row = {
+        hour,
+        label: formatHourLabel(hour, this._config.time_format),
+        cells: dates.map(date => {
+          const dateKey = getDateKey(date);
+          const key = `${dateKey}_${hour}`;
+          const bucket = grid[key];
+
+          const cell = {
+            date,
+            speed: bucket?.maxSpeed ?? null,
+            direction: bucket?.avgDirection ?? null,
+            hasData: bucket && bucket.maxSpeed !== null,
+            isPartial: partialBucketKey && key === partialBucketKey
+          };
+
+          if (cell.speed !== null) {
+            allSpeeds.push(cell.speed);
+          }
+
+          return cell;
+        })
+      };
+      rows.push(row);
+    }
+
+    // Calculate statistics
+    const stats = {
+      min: allSpeeds.length > 0 ? Math.min(...allSpeeds) : 0,
+      max: allSpeeds.length > 0 ? Math.max(...allSpeeds) : 0,
+      avg: allSpeeds.length > 0
+        ? allSpeeds.reduce((a, b) => a + b, 0) / allSpeeds.length
+        : 0
+    };
+
+    this._processedData = { rows, dates, stats };
+  }
+
+  // Main render method
+  _render() {
+    if (!this._config || !this._hass) return;
+
+    this._content.innerHTML = `
+      <div class="card-header">
+        <span class="title">${escapeHtml(this._config.title)}</span>
+        ${this._renderNavControls()}
+      </div>
+
+      ${this._error ? this._renderError() : ''}
+      ${this._isLoading ? this._renderLoading() : ''}
+      ${this._processedData && !this._error ? this._renderGrid() : ''}
+      ${this._processedData && !this._error && this._config.show_legend ? this._renderLegend() : ''}
+      ${this._processedData && !this._error ? this._renderFooter() : ''}
+    `;
+
+    // Apply compact-header class to card element
+    this._content.classList.toggle('compact-header', !!this._config.compact_header);
+
+    // Set CSS variables for grid layout and cell sizing
+    if (this._processedData) {
+      this._content.style.setProperty('--days-count', this._config.days);
+
+      const sizing = this._getEffectiveSizing();
+      this._content.style.setProperty('--cell-height', sizing.cellHeight);
+      this._content.style.setProperty('--cell-width', sizing.cellWidth);
+      this._content.style.setProperty('--cell-padding', sizing.cellPadding);
+      this._content.style.setProperty('--cell-gap', sizing.cellGap);
+      this._content.style.setProperty('--cell-font-size', sizing.cellFontSize);
+      this._content.style.setProperty('--cell-border-radius', this._config.rounded_corners ? '4px' : '0');
+    }
+  }
+
+  // Render navigation controls
+  _renderNavControls() {
+    const canGoForward = this._viewOffset < 0;
+    const showCurrentButton = this._viewOffset < 0;
+    const dateRange = this._getDateRangeLabel();
+
+    return `
+      <div class="nav-controls">
+        <button class="nav-btn" data-direction="back" aria-label="Previous period">&#8592;</button>
+        <span class="date-range">${dateRange}</span>
+        <button class="nav-btn" data-direction="forward"
+                ${canGoForward ? '' : 'disabled'}
+                aria-label="Next period">&#8594;</button>
+        <button class="nav-btn-current ${showCurrentButton ? '' : 'hidden'}"
+                data-direction="current"
+                aria-label="Jump to current"
+                ${showCurrentButton ? '' : 'aria-hidden="true"'}>Current</button>
+      </div>
+    `;
+  }
+
+  // Get date range label for display
+  _getDateRangeLabel() {
+    if (!this._processedData) return '';
+
+    const { dates } = this._processedData;
+    const start = dates[0];
+    const end = dates[dates.length - 1];
+
+    const formatOpts = { month: 'short', day: 'numeric' };
+    const startStr = start.toLocaleDateString(undefined, formatOpts);
+    const endStr = end.toLocaleDateString(undefined, formatOpts);
+
+    return `${startStr} - ${endStr}`;
+  }
+
+  // Render loading state
+  _renderLoading() {
+    return `
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <div style="margin-top: 8px;">Loading wind data...</div>
+      </div>
+    `;
+  }
+
+  // Render error state
+  _renderError() {
+    return `
+      <div class="error-message">
+        <div class="error-icon">!</div>
+        <div class="error-text">
+          <strong>${escapeHtml(this._error.message)}</strong>
+          <div class="error-details">${escapeHtml(this._error.details)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render heatmap grid
+  _renderGrid() {
+    const { rows, dates } = this._processedData;
+
+    // Month header
+    const monthName = dates[0].toLocaleDateString(undefined, {
+      month: 'long',
+      year: 'numeric'
+    });
+
+    // Date headers
+    const dateHeaders = dates.map(date => {
+      const day = date.getDate();
+      return `<div class="date-header">${day}</div>`;
+    }).join('');
+
+    // Time labels (separate column)
+    const timeLabels = rows.map(row =>
+      `<div class="time-label">${row.label}</div>`
+    ).join('');
+
+    // Data cells
+    const dataCells = rows.map(row =>
+      row.cells.map(cell => this._renderCell(cell)).join('')
+    ).join('');
+
+    return `
+      <div class="heatmap-grid">
+        <div class="month-header">${monthName}</div>
+        <div class="grid-wrapper">
+          <div class="time-labels">
+            ${timeLabels}
+          </div>
+          <div class="data-grid-container">
+            <div class="date-headers">
+              ${dateHeaders}
+            </div>
+            <div class="data-grid">
+              ${dataCells}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render individual cell
+  _renderCell(cell) {
+    if (!cell.hasData) {
+      return `<div class="cell no-data"><span class="speed">-</span></div>`;
+    }
+
+    const bgColor = getColorForSpeed(
+      cell.speed,
+      this._config.color_thresholds,
+      this._config.interpolate_colors,
+      this._config.color_interpolation
+    );
+    const textColor = getContrastTextColor(bgColor);
+    const directionStr = this._config.show_direction
+      ? formatDirection(cell.direction, this._config.direction_format)
+      : '';
+
+    // Add asterisk indicator for partial (in-progress) buckets
+    const partialIndicator = cell.isPartial ? '*' : '';
+    const partialLabel = cell.isPartial ? ' (in progress)' : '';
+
+    return `
+      <div class="cell${cell.isPartial ? ' partial' : ''}"
+           style="background-color: ${bgColor}; color: ${textColor}"
+           data-speed="${cell.speed}"
+           data-direction="${cell.direction || ''}"
+           data-date="${cell.date.toISOString()}"
+           data-partial="${cell.isPartial ? 'true' : 'false'}"
+           tabindex="0"
+           role="button"
+           aria-label="Wind speed ${cell.speed.toFixed(1)}${partialLabel}">
+        <span class="speed">${cell.speed.toFixed(1)}${partialIndicator}</span>
+        ${directionStr ? `<span class="direction">${directionStr}</span>` : ''}
+      </div>
+    `;
+  }
+
+  // Render footer with statistics
+  _renderFooter() {
+    const { stats } = this._processedData;
+    const unit = this._getUnit();
+
+    let entityName = '';
+    if (this._config.show_entity_name) {
+      const stateObj = this._hass?.states[this._config.entity];
+      const friendlyName = stateObj?.attributes?.friendly_name || this._config.entity;
+      entityName = `<div class="entity-name">${escapeHtml(friendlyName)}</div>`;
+    }
+
+    return `
+      <div class="footer">
+        <div class="footer-stats">
+          <span>Min: ${stats.min.toFixed(1)} ${unit}</span>
+          <span>Max: ${stats.max.toFixed(1)} ${unit}</span>
+          <span>Avg: ${stats.avg.toFixed(1)} ${unit}</span>
+        </div>
+        ${entityName}
+      </div>
+    `;
+  }
+
+  // Render legend bar with gradient
+  _renderLegend() {
+    const thresholds = this._config.color_thresholds;
+
+    // Build gradient stops from thresholds
+    // Calculate percentage positions based on value range
+    const maxValue = thresholds[thresholds.length - 1].value;
+    const gradientStops = thresholds.map((t) => {
+      // Use logarithmic-ish scaling for better visual distribution
+      // since wind speeds cluster at lower values
+      const percent = Math.min((t.value / Math.max(maxValue, 75)) * 100, 100);
+      return `${t.color} ${percent.toFixed(0)}%`;
+    }).join(', ');
+
+    // Position labels at their value-proportional gradient positions with
+    // collision detection to avoid crowding on dense threshold sets.
+    const denominator = Math.max(maxValue, 75);
+    const MIN_LABEL_SPACING = 8; // percent of bar width
+    let lastLabelPct = -Infinity;
+    const labelHtml = thresholds.map((t, i) => {
+      const pct = Math.min((t.value / denominator) * 100, 100);
+      if (pct - lastLabelPct < MIN_LABEL_SPACING) return '';
+      lastLabelPct = pct;
+      const isLastThreshold = i === thresholds.length - 1;
+      return `<span style="left:${pct.toFixed(1)}%;">${t.value}${isLastThreshold ? '+' : ''}</span>`;
+    }).join('');
+
+    return `
+      <div class="legend">
+        <div class="legend-bar" style="background: linear-gradient(to right, ${gradientStops});"></div>
+        <div class="legend-labels" style="position:relative;">
+          ${labelHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  // Get unit of measurement for wind speed
+  _getUnit() {
+    // Try config first
+    if (this._config.unit) {
+      return this._config.unit;
+    }
+
+    // Auto-detect from entity attributes
+    const stateObj = this._hass?.states[this._config.entity];
+    if (stateObj?.attributes?.unit_of_measurement) {
+      return stateObj.attributes.unit_of_measurement;
+    }
+
+    // Default fallback
+    return 'mph';
+  }
+
+  // Handle all click events (event delegation)
+  _handleClick(e) {
+    // Navigation buttons (both regular nav-btn and nav-btn-current)
+    const navBtn = e.target.closest('.nav-btn, .nav-btn-current');
+    if (navBtn && !navBtn.disabled) {
+      const direction = navBtn.dataset.direction;
+      this._handleNavigation(direction);
+      return;
+    }
+
+    // Cell clicks
+    const cell = e.target.closest('.cell');
+    if (cell && !cell.classList.contains('no-data')) {
+      this._handleCellClick(cell);
+    }
+  }
+
+  // Handle navigation button clicks
+  _handleNavigation(direction) {
+    if (direction === 'back') {
+      // Go back one period
+      this._viewOffset -= this._config.days;
+    } else if (direction === 'forward') {
+      // Go forward one period
+      this._viewOffset += this._config.days;
+      // Don't allow going into the future
+      if (this._viewOffset > 0) {
+        this._viewOffset = 0;
+      }
+    } else if (direction === 'current') {
+      // Jump to current view
+      this._viewOffset = 0;
+    }
+
+    // Fetch new data for the offset period
+    this._fetchHistoryData();
+  }
+
+  // Handle cell click events
+  _handleCellClick(cellElement) {
+    const action = this._config.click_action;
+
+    switch (action) {
+      case 'more-info':
+        this._showMoreInfo();
+        break;
+      case 'tooltip':
+        this._showTooltip(cellElement);
+        break;
+    }
+  }
+
+  // Show Home Assistant more-info dialog
+  _showMoreInfo() {
+    this.dispatchEvent(new CustomEvent('hass-more-info', {
+      bubbles: true,
+      composed: true,
+      detail: { entityId: this._config.entity }
+    }));
+  }
+
+  // Show tooltip with cell details
+  _showTooltip(cellElement) {
+    const speed = parseFloat(cellElement.dataset.speed);
+    const direction = cellElement.dataset.direction;
+    const date = new Date(cellElement.dataset.date);
+    const isPartial = cellElement.dataset.partial === 'true';
+
+    // Remove any existing tooltip
+    const existing = this.shadowRoot.querySelector('.tooltip');
+    if (existing) {
+      existing.remove();
+    }
+
+    // Create tooltip element
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+
+    const dateStr = date.toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric'
+    });
+
+    const unit = this._getUnit();
+    const dirText = direction
+      ? ` ${degreesToCardinal(direction)} (${Math.round(direction)}deg)`
+      : '';
+    const partialNote = isPartial ? '<div><em>(in progress)</em></div>' : '';
+
+    tooltip.innerHTML = `
+      <div><strong>${dateStr}</strong></div>
+      <div>Speed: ${speed.toFixed(1)} ${unit}${dirText}</div>
+      ${partialNote}
+    `;
+
+    // Position tooltip near the cell
+    const rect = cellElement.getBoundingClientRect();
+    const parentRect = this._content.getBoundingClientRect();
+    tooltip.style.left = `${rect.left - parentRect.left + rect.width / 2}px`;
+    tooltip.style.top = `${rect.bottom - parentRect.top + 4}px`;
+    tooltip.style.transform = 'translateX(-50%)';
+
+    this._content.appendChild(tooltip);
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      if (tooltip.parentElement) {
+        tooltip.remove();
+      }
+    }, 3000);
+  }
+
+  // Get effective sizing configuration (handles compact mode override)
+  _getEffectiveSizing() {
+    // If compact mode is enabled, use preset values
+    if (this._config.compact) {
+      return {
+        cellHeight: '24px',
+        cellWidth: '1fr',
+        cellPadding: '1px',
+        cellGap: '1px',
+        cellFontSize: '9px',
+      };
+    }
+
+    // Otherwise use configured or default values
+    return {
+      cellHeight: normalizeSize(this._config.cell_height, '36px'),
+      cellWidth: normalizeSize(this._config.cell_width, '1fr'),
+      cellPadding: normalizeSize(this._config.cell_padding, '2px'),
+      cellGap: normalizeSize(this._config.cell_gap, '2px'),
+      cellFontSize: normalizeSize(this._config.cell_font_size, '11px'),
+    };
+  }
+}
+
+// Visual configuration editor for the Windspeed Heatmap Card
+
+
+/**
+ * Visual configuration editor component.
+ * Provides UI for configuring the heatmap card options.
+ */
+class WindspeedHeatmapCardEditor extends HTMLElement {
+  constructor() {
+    super();
+    this._config = {};
+    this._hass = null;
+    this.content = null;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this.content) this._buildEditor();
+  }
+
+  async setConfig(config) {
+    // Clone to avoid modifying the read-only object
+    this._config = { ...(config || {}) };
+
+    // Ensure that the entity picker element is available to us before we render.
+    const helpers = await window.loadCardHelpers();
+    if (!customElements.get('ha-entity-picker')) {
+      const entitiesCard = await helpers.createCardElement({
+        type: 'entities',
+        entities: [],
+      });
+      await entitiesCard.constructor.getConfigElement();
+    }
+
+    // Default values
+    const defaults = {
+      entity: '',
+      direction_entity: '',
+      title: 'Wind Speed History',
+      days: 7,
+      time_interval: 2,
+      time_format: '24',
+      unit: '',  // Empty string means auto-detect
+      show_direction: true,
+      direction_format: 'arrow',
+      refresh_interval: 300,
+      click_action: 'more-info',
+      show_entity_name: false,
+      cell_height: 36,
+      cell_width: '1fr',
+      cell_padding: 2,
+      cell_gap: 2,
+      cell_font_size: 11,
+      compact: false,
+      compact_header: false,
+      rounded_corners: true,
+      show_legend: false,
+      interpolate_colors: false,
+      color_interpolation: 'hsl',
+      color_thresholds: [],
+      data_source: 'auto',
+      statistic_type: 'max',
+    };
+    this._config = { ...defaults, ...this._config };
+
+    if (this.content) this._updateValues();
+  }
+
+  getConfig() {
+    return { ...this._config };
+  }
+
+  _buildEditor() {
+    this.content = document.createElement('div');
+    this.content.style.display = 'grid';
+    this.content.style.gridGap = '8px';
+    this.content.style.padding = '8px';
+    this.appendChild(this.content);
+
+    this.container_threshold = {};
+    this.fields = {};
+
+    // Field definitions
+    const fields = [
+      { type: 'entity', key: 'entity', label: 'Wind Speed Entity', required: true },
+      { type: 'entity', key: 'direction_entity', label: 'Wind Direction Entity' },
+      { type: 'text', key: 'title', label: 'Title' },
+      { type: 'number', key: 'days', label: 'Days', min: 1, max: 30 },
+      { type: 'number', key: 'time_interval', label: 'Time Interval (hours)', min: 1, max: 24 },
+      { type: 'select', key: 'time_format', label: 'Time Format', options: { 24: '24h', 12: '12h' } },
+      { type: 'select', key: 'unit', label: 'Unit', options: { '': 'Auto-detect', 'mph': 'mph', 'km/h': 'km/h', 'm/s': 'm/s', 'kn': 'knots' } },
+      { type: 'select', key: 'data_source', label: 'Data Source', options: { 'auto': 'Auto (statistics for past, history for current)', 'history': 'History only (limited by purge_keep_days)', 'statistics': 'Statistics only (long-term hourly data)' } },
+      { type: 'select', key: 'statistic_type', label: 'Statistic Type', options: { 'max': 'Maximum', 'mean': 'Average', 'min': 'Minimum' } },
+      { type: 'switch', key: 'show_direction', label: 'Show Direction' },
+      { type: 'select', key: 'direction_format', label: 'Direction Format', options: { arrow: 'Arrow', cardinal: 'Cardinal', degrees: 'Degrees' } },
+      { type: 'number', key: 'refresh_interval', label: 'Refresh Interval (s)', min: 10, max: 3600 },
+      { type: 'select', key: 'click_action', label: 'Click Action', options: { none: 'None', 'more-info': 'More Info', tooltip: 'Tooltip' } },
+      { type: 'switch', key: 'show_entity_name', label: 'Show Entity Name' },
+      { type: 'switch', key: 'show_legend', label: 'Show Legend' },
+      { type: 'number', key: 'cell_height', label: 'Cell Height', min: 10, max: 200 },
+      { type: 'text', key: 'cell_width', label: 'Cell Width (px or fr)' },
+      { type: 'number', key: 'cell_padding', label: 'Cell Padding', min: 0, max: 50 },
+      { type: 'number', key: 'cell_gap', label: 'Cell Gap', min: 0, max: 50 },
+      { type: 'number', key: 'cell_font_size', label: 'Cell Font Size', min: 6, max: 32 },
+      { type: 'switch', key: 'compact', label: 'Compact Mode' },
+      { type: 'switch', key: 'compact_header', label: 'Compact Header' },
+      { type: 'switch', key: 'rounded_corners', label: 'Rounded Corners' },
+      { type: 'switch', key: 'interpolate_colors', label: 'Interpolate Colors' },
+      { type: 'select', key: 'color_interpolation', label: 'Color Interpolation', options: { rgb: 'RGB', gamma: 'Gamma RGB', hsl: 'HSL', lab: 'LAB' } },
+      { type: 'thresholds', key: 'color_thresholds', label: 'Colors' },
+    ];
+
+    // Create fields dynamically
+    fields.forEach((f) => this._createField(f));
+
+    this._updateValues();
+  }
+
+  _createThresholdEditor() {
+    // Function to create a threshold row
+    const createRow = (threshold, index) => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      row.style.gap = '8px';
+
+      const valueInput = document.createElement('ha-textfield');
+      valueInput.type = 'number';
+      valueInput.value = threshold.value;
+
+      valueInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const newThresholds = [...this._config.color_thresholds];
+        const updatedThreshold = { ...this._config.color_thresholds[index] };
+        updatedThreshold.value = Number(e.target.value);
+        newThresholds[index] = updatedThreshold;
+        this._onFieldChange('color_thresholds', newThresholds);
+        this._refreshThresholdEditor();
+      });
+
+      const colorInput = document.createElement('input');
+      colorInput.type = 'color';
+      // Convert rgba to hex for color picker
+      colorInput.value = rgbaToHex(threshold.color);
+      colorInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const newThresholds = [...this._config.color_thresholds];
+        const updatedThreshold = { ...this._config.color_thresholds[index] };
+        updatedThreshold.color = e.target.value;
+        newThresholds[index] = updatedThreshold;
+        this._onFieldChange('color_thresholds', newThresholds);
+        this._refreshThresholdEditor();
+      });
+
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = 'X';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const newThresholds = [...this._config.color_thresholds];
+        newThresholds.splice(index, 1);
+        this._onFieldChange('color_thresholds', newThresholds);
+        this._refreshThresholdEditor();
+      });
+
+      row.appendChild(valueInput);
+      row.appendChild(colorInput);
+      row.appendChild(removeBtn);
+      this.container_threshold.appendChild(row);
+    };
+
+    // Create all rows
+    if (!this._config.color_thresholds) this._config.color_thresholds = [];
+    this._config.color_thresholds.forEach((t, i) => createRow(t, i));
+  }
+
+  _refreshThresholdEditor() {
+    // Remove old rows and recreate
+    while (this.container_threshold.firstChild) {
+      this.container_threshold.removeChild(this.container_threshold.firstChild);
+    }
+    this._createThresholdEditor();
+  }
+
+  _updateValues() {
+    if (!this._config) return;
+    for (const key in this.fields) {
+      const input = this.fields[key].input;
+      if (this.fields[key].type === 'checkbox' || this.fields[key].type === 'switch') {
+        input.checked = !!this._config[key];
+      } else if (this.fields[key].type === 'thresholds') {
+        this._refreshThresholdEditor();
+      } else {
+        input.value = this._config[key] !== undefined ? this._config[key] : '';
+      }
+    }
+  }
+
+  // Generic function to create a field
+  _createField({ type, key, label, min, max, options, required }) {
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.flexDirection = 'column';
+    wrapper.style.marginBottom = '8px';
+
+    let input;
+
+    if (type === 'switch') {
+      wrapper.style.flexDirection = 'row';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.gap = '8px';
+
+      input = document.createElement('ha-switch');
+
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+
+      wrapper.appendChild(input);
+      wrapper.appendChild(lbl);
+
+      input.addEventListener('change', (e) => {
+        e.stopPropagation();
+        this._onFieldChange(key, input.checked);
+      });
+    } else if (type === 'thresholds') {
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+      wrapper.appendChild(lbl);
+
+      const list = document.createElement('div');
+      list.style.display = 'grid';
+      list.style.gridGap = '8px';
+      wrapper.appendChild(list);
+
+      this.container_threshold = list;
+
+      const addBtn = document.createElement('button');
+      addBtn.textContent = 'Add Threshold';
+      addBtn.style.marginTop = '8px';
+      addBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const newThresholds = [...this._config.color_thresholds];
+        newThresholds.push({ value: 0, color: '#ffffff' });
+        this._onFieldChange(key, newThresholds);
+      });
+
+      wrapper.appendChild(addBtn);
+    } else {
+      const lbl = document.createElement('label');
+      lbl.textContent = label;
+      wrapper.appendChild(lbl);
+
+      if (type === 'entity') {
+        input = document.createElement('ha-entity-picker');
+        input.setAttribute('allow-custom-entity', '');
+        input.hass = this._hass;
+
+        input.addEventListener('value-changed', (e) => {
+          e.stopPropagation();
+          this._onFieldChange(key, e.detail.value);
+        });
+      } else if (type === 'number' || type === 'text') {
+        input = document.createElement('ha-textfield');
+        input.type = type;
+        if (min !== undefined) input.min = min;
+        if (max !== undefined) input.max = max;
+        if (required) input.required = true;
+
+        input.addEventListener('change', (e) => {
+          e.stopPropagation();
+          const value = type === 'number' ? Number(input.value) : input.value;
+          this._onFieldChange(key, value);
+        });
+      } else if (type === 'select') {
+        input = document.createElement('ha-select');
+        for (const val in options) {
+          const opt = document.createElement('mwc-list-item');
+          opt.value = val;
+          opt.innerText = options[val];
+          input.appendChild(opt);
+        }
+
+        input.addEventListener('selected', (e) => {
+          e.stopPropagation();
+          this._onFieldChange(key, e.target.value);
+        });
+        input.addEventListener('closed', (e) => {
+          e.stopPropagation();
+        });
+      }
+
+      wrapper.appendChild(input);
+    }
+    this.fields[key] = {};
+    this.fields[key].input = input;
+    this.fields[key].type = type;
+    this.content.appendChild(wrapper);
+  }
+
+  // Handle field changes
+  _onFieldChange(key, value) {
+    const newConfig = { ...this._config, [key]: value };
+    this._config = newConfig;
+    this.dispatchEvent(
+      new CustomEvent('config-changed', {
+        detail: { config: newConfig },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
+  // Cleanup when editor is removed from DOM
+  disconnectedCallback() {
+    this.fields = {};
+    this.container_threshold = null;
+  }
+}
+
+// Entry point: registers custom elements and card metadata
+
+
+// Register custom elements
+customElements.define('windspeed-heatmap-card-editor', WindspeedHeatmapCardEditor);
+customElements.define('windspeed-heatmap-card', WindspeedHeatmapCard);
+
+// Register with Home Assistant custom cards
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: 'windspeed-heatmap-card',
+  name: 'Windspeed Heatmap Card',
+  description: 'Display wind speed history as a color-coded heatmap using Beaufort scale colors'
+});
+
+// Console banner
+console.info(
+  '%c WINDSPEED-HEATMAP-CARD %c v' + VERSION + ' ',
+  'color: lightblue; font-weight: bold; background: black',
+  'color: white; font-weight: bold; background: dimgray'
+);
