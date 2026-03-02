@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-03-01
+
+### Added
+- `fill_gaps` option: forward-fills the last known wind speed (and direction if available) into empty buckets within each day column. Filled cells render at reduced opacity with a dashed border and show "(estimated - gap filled)" in the tooltip. Disabled by default.
+- `compact_header` option: reduces title font size, header/footer padding, and nav arrow size. Works independently of `compact` (cell sizing) mode.
+
+### Changed
+- Simplified to single-file deployment - removed Rollup build system. `windspeed-heatmap-card.js` at the repo root is the only file needed.
+
 ## [0.6.2] - 2026-02-27
 
 ### Fixed

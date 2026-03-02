@@ -78,6 +78,7 @@ statistic_type: max
 | `days` | number | `7` | Number of days to display (1-30) |
 | `direction_entity` | string | `null` | Wind direction sensor entity ID (optional) |
 | `direction_format` | string | `"arrow"` | Direction format: "arrow", "cardinal", or "degrees" |
+| `fill_gaps` | boolean | `false` | Forward-fill last known value into empty buckets (use with caution - estimates missing data) |
 | `interpolate_colors` | boolean | `false` | Enable smooth color interpolation between thresholds |
 | `refresh_interval` | number | `300` | Data refresh interval in seconds |
 | `rounded_corners` | boolean | `true` | Enable rounded corners on cells (set to false for flat grid) |

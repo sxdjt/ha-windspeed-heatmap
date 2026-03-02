@@ -1,4 +1,4 @@
-/* Last modified: 28-Feb-2026 */
+/* Last modified: 01-Mar-2026 */
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -92,7 +92,7 @@ function getDefaultThresholdsForUnit(unit) {
 }
 
 // Card version
-const VERSION = '0.6.2';
+const VERSION = '0.7.0';
 
 // ---------------------------------------------------------------------------
 // Color utilities
@@ -854,6 +854,12 @@ function createStyleElement() {
       opacity: 0.9;
     }
 
+    /* Gap-filled cell: estimated value from last known reading */
+    .cell.filled {
+      opacity: 0.6;
+      border: 1px dashed currentColor;
+    }
+
     .speed {
       font-weight: bold;
       line-height: 1.1;
@@ -1257,6 +1263,9 @@ class WindspeedHeatmapCard extends HTMLElement {
       // Data source options
       data_source: config.data_source || 'auto',  // 'auto', 'history', 'statistics'
       statistic_type: config.statistic_type || 'max',  // 'max', 'mean', 'min' (for statistics data)
+
+      // Gap filling: forward-fill last known value into empty buckets (use at your own risk)
+      fill_gaps: config.fill_gaps || false,
     };
 
     // Sort thresholds by value (ascending) - create mutable copy to avoid "read-only" errors
@@ -1740,6 +1749,38 @@ class WindspeedHeatmapCard extends HTMLElement {
       rows.push(row);
     }
 
+    // Optional gap filling: forward-fill the last known speed into empty buckets.
+    // Iterates column by column (day) so each day fills independently from its own data.
+    // Filled cells are marked isFilled=true for visual distinction.
+    // Future time slots are never filled.
+    if (this._config.fill_gaps) {
+      const now = new Date();
+      for (let colIndex = 0; colIndex < dates.length; colIndex++) {
+        let lastKnownSpeed = null;
+        let lastKnownDirection = null;
+        for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+          const row = rows[rowIndex];
+          const cell = row.cells[colIndex];
+
+          // Stop filling once we reach future time slots
+          const cellTime = new Date(cell.date);
+          cellTime.setHours(row.hour, 0, 0, 0);
+          if (cellTime > now) break;
+
+          if (cell.hasData) {
+            lastKnownSpeed = cell.speed;
+            lastKnownDirection = cell.direction;
+          } else if (lastKnownSpeed !== null) {
+            // Fill with last known values
+            cell.speed = lastKnownSpeed;
+            cell.direction = lastKnownDirection;
+            cell.hasData = true;
+            cell.isFilled = true;
+          }
+        }
+      }
+    }
+
     // Calculate statistics
     const stats = {
       min: allSpeeds.length > 0 ? Math.min(...allSpeeds) : 0,
@@ -1911,17 +1952,23 @@ class WindspeedHeatmapCard extends HTMLElement {
     // Add asterisk indicator for partial (in-progress) buckets
     const partialIndicator = cell.isPartial ? '*' : '';
     const partialLabel = cell.isPartial ? ' (in progress)' : '';
+    const filledLabel = cell.isFilled ? ' (estimated)' : '';
+
+    let cellClass = 'cell';
+    if (cell.isPartial) cellClass += ' partial';
+    if (cell.isFilled) cellClass += ' filled';
 
     return `
-      <div class="cell${cell.isPartial ? ' partial' : ''}"
+      <div class="${cellClass}"
            style="background-color: ${bgColor}; color: ${textColor}"
            data-speed="${cell.speed}"
            data-direction="${cell.direction || ''}"
            data-date="${cell.date.toISOString()}"
            data-partial="${cell.isPartial ? 'true' : 'false'}"
+           data-filled="${cell.isFilled ? 'true' : 'false'}"
            tabindex="0"
            role="button"
-           aria-label="Wind speed ${cell.speed.toFixed(1)}${partialLabel}">
+           aria-label="Wind speed ${cell.speed.toFixed(1)}${partialLabel}${filledLabel}">
         <span class="speed">${cell.speed.toFixed(1)}${partialIndicator}</span>
         ${directionStr ? `<span class="direction">${directionStr}</span>` : ''}
       </div>
@@ -2076,6 +2123,7 @@ class WindspeedHeatmapCard extends HTMLElement {
     const direction = cellElement.dataset.direction;
     const date = new Date(cellElement.dataset.date);
     const isPartial = cellElement.dataset.partial === 'true';
+    const isFilled = cellElement.dataset.filled === 'true';
 
     // Remove any existing tooltip
     const existing = this.shadowRoot.querySelector('.tooltip');
@@ -2097,11 +2145,13 @@ class WindspeedHeatmapCard extends HTMLElement {
       ? ` ${degreesToCardinal(direction)} (${Math.round(direction)}deg)`
       : '';
     const partialNote = isPartial ? '<div><em>(in progress)</em></div>' : '';
+    const filledNote = isFilled ? '<div><em>(estimated - gap filled)</em></div>' : '';
 
     tooltip.innerHTML = `
       <div><strong>${dateStr}</strong></div>
       <div>Speed: ${speed.toFixed(1)} ${unit}${dirText}</div>
       ${partialNote}
+      ${filledNote}
     `;
 
     // Position tooltip near the cell
@@ -2210,6 +2260,7 @@ class WindspeedHeatmapCardEditor extends HTMLElement {
       color_thresholds: [],
       data_source: 'auto',
       statistic_type: 'max',
+      fill_gaps: false,
     };
     this._config = { ...defaults, ...this._config };
 
@@ -2255,6 +2306,7 @@ class WindspeedHeatmapCardEditor extends HTMLElement {
       { type: 'switch', key: 'compact', label: 'Compact Mode' },
       { type: 'switch', key: 'compact_header', label: 'Compact Header' },
       { type: 'switch', key: 'rounded_corners', label: 'Rounded Corners' },
+      { type: 'switch', key: 'fill_gaps', label: 'Fill Gaps - use at your own risk (forward-fills last known value into empty buckets)' },
       { type: 'switch', key: 'interpolate_colors', label: 'Interpolate Colors' },
       { type: 'select', key: 'color_interpolation', label: 'Color Interpolation', options: { rgb: 'RGB', gamma: 'Gamma RGB', hsl: 'HSL', lab: 'LAB' } },
       { type: 'thresholds', key: 'color_thresholds', label: 'Colors' },
