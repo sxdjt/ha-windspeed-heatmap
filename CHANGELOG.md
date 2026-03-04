@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1] - 2026-03-03
+
+### Added
+- `show_month_year` option (default: true) to hide the month/year label above the grid, removing the element entirely for a more compact layout
+
 ## [0.7.0] - 2026-03-01
 
 ### Added

@@ -84,6 +84,7 @@ statistic_type: max
 | `rounded_corners` | boolean | `true` | Enable rounded corners on cells (set to false for flat grid) |
 | `show_direction` | boolean | `true` | Show wind direction in cells |
 | `show_entity_name` | boolean | `false` | Show entity friendly name in footer |
+| `show_month_year` | boolean | `true` | Show month/year label above the grid |
 | `show_legend` | boolean | `false` | Show color scale legend bar below footer |
 | `statistic_type` | string | `"max"` | Statistic to use for statistics data: "max", "mean", or "min" |
 | `time_format` | string | `"24"` | Time format: "12" or "24" |
