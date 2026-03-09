@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.2] - 2026-03-08
+
+### Fixed
+- Editor dropdown selectors (Data Source, Aggregation Mode, etc.) now correctly update the card configuration when an option is selected
+- Auto data source now combines both statistics (for older days beyond history retention) and history (for recent days), so viewing more days than `purge_keep_days` no longer results in blank older cells
+
 ## [0.7.1] - 2026-03-03
 
 ### Added

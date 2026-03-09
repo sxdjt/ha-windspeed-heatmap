@@ -1,4 +1,4 @@
-/* Last modified: 03-Mar-2026 */
+/* Last modified: 08-Mar-2026 */
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -92,7 +92,7 @@ function getDefaultThresholdsForUnit(unit) {
 }
 
 // Card version
-const VERSION = '0.7.1';
+const VERSION = '0.7.2';
 
 // ---------------------------------------------------------------------------
 // Color utilities
@@ -1434,15 +1434,13 @@ class WindspeedHeatmapCard extends HTMLElement {
     if (source === 'history') return 'history';
     if (source === 'statistics') return 'statistics';
 
-    // Auto mode: prefer statistics for historical data (viewOffset < 0)
-    // or when explicitly looking at older data
-    // Statistics are hourly aggregates - good for longer time ranges
+    // Auto mode: for historical views (navigated back), statistics are sufficient.
+    // For the current view, combine both: statistics fill older days, history fills recent days.
     if (this._viewOffset < 0) {
       return 'statistics';
     }
 
-    // For current view, use history for more granular data
-    return 'history';
+    return 'auto';
   }
 
   // Fetch historical data from Home Assistant
@@ -1496,6 +1494,8 @@ class WindspeedHeatmapCard extends HTMLElement {
 
       if (dataSource === 'statistics') {
         await this._fetchStatisticsData(startTime, endTime, partialBucketKey);
+      } else if (dataSource === 'auto') {
+        await this._fetchAutoData(startTime, endTime, partialBucketKey);
       } else {
         await this._fetchHistoryApiData(startTime, endTime, partialBucketKey);
       }
@@ -1528,12 +1528,17 @@ class WindspeedHeatmapCard extends HTMLElement {
 
   // Fetch data using the history/period REST API (short-term states)
   async _fetchHistoryApiData(startTime, endTime, partialBucketKey = null) {
+    const { speed, direction } = await this._fetchHistoryRaw(startTime, endTime);
+    this._historyData = { speed, direction, startTime, endTime, partialBucketKey, dataSource: 'history' };
+  }
+
+  // Raw history fetch - returns { speed, direction } arrays
+  async _fetchHistoryRaw(startTime, endTime) {
     const startTimeISO = startTime.toISOString();
     const endTimeISO = endTime.toISOString();
 
     console.log(`Windspeed Heatmap: Using history API - Start: ${startTimeISO}, End: ${endTimeISO}`);
 
-    // Build API URLs - fetch both in parallel for better performance
     const speedUrl = `history/period/${startTimeISO}?` +
       `filter_entity_id=${this._config.entity}&` +
       `end_time=${endTimeISO}&` +
@@ -1541,7 +1546,6 @@ class WindspeedHeatmapCard extends HTMLElement {
 
     const fetchPromises = [this._hass.callApi('GET', speedUrl)];
 
-    // Add direction fetch if configured
     if (this._config.direction_entity && this._config.show_direction) {
       const directionUrl = `history/period/${startTimeISO}?` +
         `filter_entity_id=${this._config.direction_entity}&` +
@@ -1550,7 +1554,6 @@ class WindspeedHeatmapCard extends HTMLElement {
       fetchPromises.push(this._hass.callApi('GET', directionUrl));
     }
 
-    // Fetch with timeout to prevent hanging
     const fetchWithTimeout = (promise, timeoutMs = 30000) => {
       return Promise.race([
         promise,
@@ -1560,37 +1563,34 @@ class WindspeedHeatmapCard extends HTMLElement {
       ]);
     };
 
-    // Fetch in parallel with timeout
     const startFetch = Date.now();
     const results = await fetchWithTimeout(Promise.all(fetchPromises));
     const fetchDuration = ((Date.now() - startFetch) / 1000).toFixed(1);
 
-    console.log(`Windspeed Heatmap: Received ${results[0]?.[0]?.length || 0} speed points, ${results[1]?.[0]?.length || 0} direction points in ${fetchDuration}s`);
-
-    this._historyData = {
-      speed: results[0]?.[0] || [],
-      direction: results[1] ? (results[1][0] || []) : [],
-      startTime,
-      endTime,
-      partialBucketKey,
-      dataSource: 'history'
-    };
+    const speed = results[0]?.[0] || [];
+    const direction = results[1] ? (results[1][0] || []) : [];
+    console.log(`Windspeed Heatmap: Received ${speed.length} speed points, ${direction.length} direction points in ${fetchDuration}s`);
+    return { speed, direction };
   }
 
   // Fetch data using the recorder/statistics_during_period WebSocket API (long-term statistics)
   async _fetchStatisticsData(startTime, endTime, partialBucketKey = null) {
+    const { speed, direction } = await this._fetchStatisticsRaw(startTime, endTime);
+    this._historyData = { speed, direction, startTime, endTime, partialBucketKey, dataSource: 'statistics' };
+  }
+
+  // Raw statistics fetch - returns { speed, direction } arrays in history-compatible format
+  async _fetchStatisticsRaw(startTime, endTime) {
     const startTimeISO = startTime.toISOString();
     const endTimeISO = endTime.toISOString();
 
     console.log(`Windspeed Heatmap: Using statistics API - Start: ${startTimeISO}, End: ${endTimeISO}`);
 
-    // Build list of statistic IDs to fetch
     const statisticIds = [this._config.entity];
     if (this._config.direction_entity && this._config.show_direction) {
       statisticIds.push(this._config.direction_entity);
     }
 
-    // Fetch with timeout to prevent hanging
     const fetchWithTimeout = (promise, timeoutMs = 30000) => {
       return Promise.race([
         promise,
@@ -1602,22 +1602,18 @@ class WindspeedHeatmapCard extends HTMLElement {
 
     const startFetch = Date.now();
 
-    // Call the WebSocket API for statistics
-    // The API returns hourly aggregated data (mean, min, max) from the statistics table
     const statsResult = await fetchWithTimeout(
       this._hass.callWS({
         type: 'recorder/statistics_during_period',
         start_time: startTimeISO,
         end_time: endTimeISO,
         statistic_ids: statisticIds,
-        period: 'hour',  // Hourly aggregates
+        period: 'hour',
       })
     );
 
     const fetchDuration = ((Date.now() - startFetch) / 1000).toFixed(1);
 
-    // Convert statistics format to history format for processing
-    // Statistics API returns: { "sensor.entity": [{ start, end, mean, min, max, sum, state }, ...] }
     const speedStats = statsResult[this._config.entity] || [];
     const directionStats = this._config.direction_entity
       ? (statsResult[this._config.direction_entity] || [])
@@ -1625,29 +1621,62 @@ class WindspeedHeatmapCard extends HTMLElement {
 
     console.log(`Windspeed Heatmap: Received ${speedStats.length} speed stats, ${directionStats.length} direction stats in ${fetchDuration}s`);
 
-    // Convert statistics to a format compatible with our processing
-    // Each stat has: start (ISO string), mean, min, max
     const statisticType = this._config.statistic_type;  // 'max', 'mean', or 'min'
 
-    const speedData = speedStats.map(stat => ({
+    const speed = speedStats.map(stat => ({
       last_changed: stat.start,
       state: String(stat[statisticType] ?? stat.mean ?? ''),
     })).filter(point => point.state !== '' && point.state !== 'null');
 
     // For direction, use mean (circular average would be ideal but mean is reasonable)
-    const directionData = directionStats.map(stat => ({
+    const direction = directionStats.map(stat => ({
       last_changed: stat.start,
       state: String(stat.mean ?? ''),
     })).filter(point => point.state !== '' && point.state !== 'null');
 
-    this._historyData = {
-      speed: speedData,
-      direction: directionData,
-      startTime,
-      endTime,
-      partialBucketKey,
-      dataSource: 'statistics'
-    };
+    return { speed, direction };
+  }
+
+  // Auto mode: combine statistics (for older days) + history (for recent days).
+  // History data takes precedence for any bucket it covers, avoiding double-counting.
+  async _fetchAutoData(startTime, endTime, partialBucketKey = null) {
+    const intervalHours = this._config.time_interval;
+
+    // Fetch statistics for the full range (covers all days including older ones)
+    const statsData = await this._fetchStatisticsRaw(startTime, endTime);
+
+    // Fetch history for the recent portion (last 10 days or fewer if days < 10)
+    const HISTORY_DAYS = 10;
+    const historyDays = Math.min(this._config.days, HISTORY_DAYS);
+    const historyStart = new Date(endTime);
+    historyStart.setDate(historyStart.getDate() - historyDays + 1);
+    historyStart.setHours(0, 0, 0, 0);
+    const historyData = await this._fetchHistoryRaw(historyStart, endTime);
+
+    // Build set of bucket keys covered by history speed data
+    const historyCoveredBuckets = new Set();
+    for (const point of historyData.speed) {
+      const ts = new Date(point.last_changed);
+      const key = `${getDateKey(ts)}_${getHourBucket(ts.getHours(), intervalHours)}`;
+      historyCoveredBuckets.add(key);
+    }
+
+    // Keep only statistics points for buckets not already covered by history
+    const filterByBuckets = (points) => points.filter(point => {
+      const ts = new Date(point.last_changed);
+      const key = `${getDateKey(ts)}_${getHourBucket(ts.getHours(), intervalHours)}`;
+      return !historyCoveredBuckets.has(key);
+    });
+
+    const filteredSpeed = filterByBuckets(statsData.speed);
+    const filteredDirection = filterByBuckets(statsData.direction);
+
+    const speed = [...filteredSpeed, ...historyData.speed];
+    const direction = [...filteredDirection, ...historyData.direction];
+
+    console.log(`Windspeed Heatmap: Auto mode - ${filteredSpeed.length} stats points + ${historyData.speed.length} history points = ${speed.length} total`);
+
+    this._historyData = { speed, direction, startTime, endTime, partialBucketKey, dataSource: 'auto' };
   }
 
   // Process raw history data into grid structure
@@ -2482,20 +2511,17 @@ class WindspeedHeatmapCardEditor extends HTMLElement {
           this._onFieldChange(key, value);
         });
       } else if (type === 'select') {
-        input = document.createElement('ha-select');
-        for (const val in options) {
-          const opt = document.createElement('mwc-list-item');
-          opt.value = val;
-          opt.innerText = options[val];
-          input.appendChild(opt);
-        }
+        input = document.createElement('ha-selector');
+        input.hass = this._hass;
+        input.selector = {
+          select: {
+            options: Object.keys(options).map(val => ({ value: val, label: options[val] })),
+          },
+        };
 
-        input.addEventListener('selected', (e) => {
+        input.addEventListener('value-changed', (e) => {
           e.stopPropagation();
-          this._onFieldChange(key, e.target.value);
-        });
-        input.addEventListener('closed', (e) => {
-          e.stopPropagation();
+          this._onFieldChange(key, e.detail.value);
         });
       }
 
