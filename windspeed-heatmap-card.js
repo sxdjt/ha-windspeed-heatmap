@@ -1,4 +1,4 @@
-/* Last modified: 08-Mar-2026 */
+/* Last modified: 09-Mar-2026 */
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -2511,17 +2511,29 @@ class WindspeedHeatmapCardEditor extends HTMLElement {
           this._onFieldChange(key, value);
         });
       } else if (type === 'select') {
-        input = document.createElement('ha-selector');
-        input.hass = this._hass;
-        input.selector = {
-          select: {
-            options: Object.keys(options).map(val => ({ value: val, label: options[val] })),
-          },
-        };
+        // Use native <select> for reliable rendering (ha-selector with select type is unreliable)
+        input = document.createElement('select');
+        input.style.display = 'block';
+        input.style.width = '100%';
+        input.style.padding = '8px 12px';
+        input.style.fontSize = '14px';
+        input.style.border = '1px solid var(--divider-color)';
+        input.style.borderRadius = '4px';
+        input.style.backgroundColor = 'var(--card-background-color, #fff)';
+        input.style.color = 'var(--primary-text-color)';
+        input.style.cursor = 'pointer';
+        input.style.boxSizing = 'border-box';
 
-        input.addEventListener('value-changed', (e) => {
+        Object.keys(options).forEach(val => {
+          const option = document.createElement('option');
+          option.value = val;
+          option.textContent = options[val];
+          input.appendChild(option);
+        });
+
+        input.addEventListener('change', (e) => {
           e.stopPropagation();
-          this._onFieldChange(key, e.detail.value);
+          this._onFieldChange(key, e.target.value);
         });
       }
 
