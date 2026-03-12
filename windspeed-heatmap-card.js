@@ -1,4 +1,4 @@
-/* Last modified: 09-Mar-2026 */
+/* Last modified: 12-Mar-2026 */
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -92,7 +92,7 @@ function getDefaultThresholdsForUnit(unit) {
 }
 
 // Card version
-const VERSION = '0.7.2';
+const VERSION = '0.7.3-beta.1';
 
 // ---------------------------------------------------------------------------
 // Color utilities
@@ -1269,6 +1269,8 @@ class WindspeedHeatmapCard extends HTMLElement {
 
       // Gap filling: forward-fill last known value into empty buckets (use at your own risk)
       fill_gaps: config.fill_gaps || false,
+      // Visual style for gap-filled cells: 'dimmed' (reduced opacity + dashed border) or 'none' (same as normal)
+      fill_gaps_style: config.fill_gaps_style || 'dimmed',
     };
 
     // Sort thresholds by value (ascending) - create mutable copy to avoid "read-only" errors
@@ -1992,7 +1994,7 @@ class WindspeedHeatmapCard extends HTMLElement {
 
     let cellClass = 'cell';
     if (cell.isPartial) cellClass += ' partial';
-    if (cell.isFilled) cellClass += ' filled';
+    if (cell.isFilled && this._config.fill_gaps_style !== 'none') cellClass += ' filled';
 
     return `
       <div class="${cellClass}"
@@ -2297,6 +2299,7 @@ class WindspeedHeatmapCardEditor extends HTMLElement {
       data_source: 'auto',
       statistic_type: 'max',
       fill_gaps: false,
+      fill_gaps_style: 'dimmed',
     };
     this._config = { ...defaults, ...this._config };
 
@@ -2344,6 +2347,7 @@ class WindspeedHeatmapCardEditor extends HTMLElement {
       { type: 'switch', key: 'show_month_year', label: 'Show Month/Year Label' },
       { type: 'switch', key: 'rounded_corners', label: 'Rounded Corners' },
       { type: 'switch', key: 'fill_gaps', label: 'Fill Gaps - use at your own risk (forward-fills last known value into empty buckets)' },
+      { type: 'select', key: 'fill_gaps_style', label: 'Fill Gaps Style', options: { dimmed: 'Dimmed (reduced opacity, dashed border)', none: 'Normal (same appearance as real data)' } },
       { type: 'switch', key: 'interpolate_colors', label: 'Interpolate Colors' },
       { type: 'select', key: 'color_interpolation', label: 'Color Interpolation', options: { rgb: 'RGB', gamma: 'Gamma RGB', hsl: 'HSL', lab: 'LAB' } },
       { type: 'thresholds', key: 'color_thresholds', label: 'Colors' },
@@ -2453,6 +2457,7 @@ class WindspeedHeatmapCardEditor extends HTMLElement {
 
       const lbl = document.createElement('label');
       lbl.textContent = label;
+      lbl.style.fontWeight = 'bold';
 
       wrapper.appendChild(input);
       wrapper.appendChild(lbl);
@@ -2464,6 +2469,7 @@ class WindspeedHeatmapCardEditor extends HTMLElement {
     } else if (type === 'thresholds') {
       const lbl = document.createElement('label');
       lbl.textContent = label;
+      lbl.style.fontWeight = 'bold';
       wrapper.appendChild(lbl);
 
       const list = document.createElement('div');
@@ -2487,6 +2493,7 @@ class WindspeedHeatmapCardEditor extends HTMLElement {
     } else {
       const lbl = document.createElement('label');
       lbl.textContent = label;
+      lbl.style.fontWeight = 'bold';
       wrapper.appendChild(lbl);
 
       if (type === 'entity') {

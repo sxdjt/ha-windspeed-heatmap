@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.3-beta.1] - 2026-03-12
+
+### Added
+- `fill_gaps_style` option: `'dimmed'` (default, existing behavior) or `'none'` to render filled cells the same as real data. Tooltip still labels estimated values. (Closes #11)
+
 ## [0.7.2] - 2026-03-08
 
 ### Fixed
