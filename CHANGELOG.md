@@ -2,10 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.7.3-beta.1] - 2026-03-12
+## [0.7.3] - 2026-03-19
 
 ### Added
 - `fill_gaps_style` option: `'dimmed'` (default, existing behavior) or `'none'` to render filled cells the same as real data. Tooltip still labels estimated values. (Closes #11)
+
+---
+
+## Heads up: something's changing!
+
+Hey! Thanks for using my card - I build stuff I want to use myself, so it's great when others find it useful too.
+
+### What's changing
+
+The [temperature](https://github.com/sxdjt/ha-temperature-heatmap) and [windspeed](https://github.com/sxdjt/ha-windspeed-heatmap) heatmap cards have always shared most of their code, with just small differences between them. Rather than keep maintaining two nearly-identical cards, I've merged them into one: [weather-heatmap](https://github.com/sxdjt/ha-weather-heatmap-card). Same functionality, less clutter in your dashboard setup. *It will be available on HACS shortly.*
+
+### When
+
+Please migrate to the new card by **4 April 2026**. After that, I won't be maintaining or updating the old temperature and windspeed cards.
+
+### Questions? Issues?
+
+Open an issue! Always happy to chat or help sort things out.
+
+---
 
 ## [0.7.2] - 2026-03-08
 

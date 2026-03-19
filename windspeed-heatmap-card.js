@@ -1,4 +1,4 @@
-/* Last modified: 12-Mar-2026 */
+/* Last modified: 19-Mar-2026 */
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -92,7 +92,7 @@ function getDefaultThresholdsForUnit(unit) {
 }
 
 // Card version
-const VERSION = '0.7.3-beta.1';
+const VERSION = '0.7.3';
 
 // ---------------------------------------------------------------------------
 // Color utilities
