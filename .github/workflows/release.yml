@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Upload JS to Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           # Use the input if manual, otherwise use the tag from the release event
           tag_name: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
