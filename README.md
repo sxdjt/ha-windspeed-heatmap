@@ -1,4 +1,4 @@
-# Windspeed Heatmap Card
+# Windspeed Heatmap Card: END OF LIFE
 
 ![GitHub Release](https://img.shields.io/github/v/release/sxdjt/ha-windspeed-heatmap?style=for-the-badge)
 [![AI Assisted](https://img.shields.io/badge/AI-Claude%20Code-AAAAAA.svg?style=for-the-badge)](https://claude.ai/code)
